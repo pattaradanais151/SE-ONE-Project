@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  /* กำหนดฟอนต์เริ่มต้นให้ครอบคลุมทั้งอังกฤษและไทย */
+  --font-sans: 'Inter', 'Noto Sans Thai', sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #FAFAFA;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
