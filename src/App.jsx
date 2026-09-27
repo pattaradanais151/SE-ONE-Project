@@ -1,31 +1,78 @@
 // src/App.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { supabase } from './shared/lib/supabase';
 
 // ====================================
-// 📥 นำเข้า Component (อ้างอิงตามโครงสร้างโฟลเดอร์จริง)
+// 🌍 Public Pages (หน้าหลักและระบบทั่วไป)
 // ====================================
-
-// โซน Landing & Portfolio
 import LandingApp from './apps/landing/LandingApp';
 import PortfolioApp from './apps/portfolio/PortfolioApp';
+import LandingLinks from './apps/job/views/LandingLinks';
+import NotFound from './apps/landing/NotFound';
+import PDPAPolicyLA from './apps/job/views/PDPAPolicyLA';
 
-// โซนระบบ SE-JOB (แก้ Path ให้ชี้ไปที่โฟลเดอร์ views)
+// ====================================
+// 🔐 Auth & SE-Work System (หน้า Login / Register / Error)
+// ====================================
 import JobHome from './apps/job/views/Home';
 import JobLogin from './apps/job/views/Login';
+import Register from './apps/job/views/Register';
+import ForgotPassword from './apps/job/views/ForgotPassword';
+import Maintenance from './apps/job/views/Maintenance';
+import ContactProfile from './apps/job/views/ContactProfile';
 
 // ====================================
-// 🔐 ระบบ Protected Route (จำลองการเช็กสิทธิ์)
+// 🛠️ Admin Workspace (ระบบหลังบ้าน)
+// ====================================
+import AdminLayout from './apps/job/layouts/AdminLayout';
+import Dashboard from './apps/job/views/admin/Dashboard';
+import Announcements from './apps/job/views/admin/Announcements';
+import Assignments from './apps/job/views/admin/Assignments';
+import Schedules from './apps/job/views/admin/Schedules';
+import Subjects from './apps/job/views/admin/Subjects';
+import SubmissionLinks from './apps/job/views/admin/SubmissionLinks';
+import SubmissionTracking from './apps/job/views/admin/SubmissionTracking';
+import Leaderboard from './apps/job/views/admin/Leaderboard';
+import Users from './apps/job/views/admin/Users';
+import AdminContacts from './apps/job/views/admin/AdminContacts';
+import Semesters from './apps/job/views/admin/Semesters';
+import ExportData from './apps/job/views/admin/ExportData';
+import Profile from './apps/job/views/admin/Profile';
+import InternalLink from './apps/job/views/admin/InternalLink';
+import ResourceCenter from './apps/job/views/admin/ResourceCenter';
+import SheetData from './apps/job/views/admin/SheetData';
+
+// ====================================
+// 🛡️ Protected Route Wrapper
 // ====================================
 const ProtectedRoute = ({ children }) => {
-  // TODO: เปลี่ยนเป็นเช็ก Token จาก Supabase จริงๆ
-  const isAuthenticated = localStorage.getItem('supabase.auth.token'); 
-  
-  if (!isAuthenticated) {
-    // ถ้ายังไม่ได้ล็อกอิน ให้เด้งกลับไปหน้า Login
-    return <Navigate to="/job/login" replace />;
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => authListener.subscription.unsubscribe();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fbfbfd] dark:bg-black">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 dark:border-zinc-800 border-t-[#0071e3] dark:border-t-[#0071e3]"></div>
+      </div>
+    );
   }
-  return children;
+
+  // เด้งไปที่ /sework/login ถ้ายังไม่ได้ล็อกอิน
+  return isAuthenticated ? children : <Navigate to="/sework/login" replace />;
 };
 
 // ====================================
@@ -37,53 +84,63 @@ export default function App() {
       <Routes>
         
         {/* ------------------------------------
-            1. โซนเว็บหลัก (Root)
+            1. Public Routes (หน้าหลัก)
             ------------------------------------ */}
         <Route path="/" element={<LandingApp />} />
-        
-        {/* ถ้ามีหน้า Policy ให้สร้างไฟล์และเอาคอมเมนต์ออก */}
-        {/* <Route path="/policy" element={<PolicyPage />} /> */}
-
-        {/* ------------------------------------
-            2. โซน Portfolio
-            ------------------------------------ */}
         <Route path="/portfolio" element={<PortfolioApp />} />
+        <Route path="/links" element={<LandingLinks />} />
+        <Route path="/pdpa" element={<PDPAPolicyLA />} />
+        <Route path="/legal" element={<PDPAPolicyLA />} />
 
         {/* ------------------------------------
-            3. โซนระบบ SE-JOB
+            2. SE-Work Auth & Core Routes
             ------------------------------------ */}
-        {/* 
-            เนื่องจากคุณยังไม่มีไฟล์ JobLayout 
-            ตอนนี้เราจะปล่อยให้มัน Route เข้าหน้าตรงๆ ไปก่อน 
-        */}
-        <Route path="/job">
-          <Route index element={<JobHome />} /> {/* ตรงกับ seone.site/job */}
-          <Route path="login" element={<JobLogin />} /> {/* ตรงกับ seone.site/job/login */}
-          
-          {/* ตัวอย่างหน้า Admin (ตอนนี้ยังไม่มีไฟล์ ให้เป็น div ไปก่อน) */}
+        <Route path="/sework">
+          <Route index element={<JobHome />} /> 
+          <Route path="login" element={<JobLogin />} />
+          <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="maintenance" element={<Maintenance />} />
+          <Route path="contact-profile" element={<ContactProfile />} />
+
+          {/* ------------------------------------
+              3. SE-Work Admin Workspace
+              ------------------------------------ */}
           <Route 
             path="admin" 
             element={
               <ProtectedRoute>
-                <div className="p-10 text-2xl font-bold">Admin Dashboard (Protected)</div>
+                <AdminLayout />
               </ProtectedRoute>
-            } 
-          />
+            }
+          >
+            {/* Redirect /sework/admin ไปที่ /sework/admin/dashboard โดยอัตโนมัติ */}
+            <Route index element={<Navigate to="dashboard" replace />} />
+            
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="announcements" element={<Announcements />} />
+            <Route path="assignments" element={<Assignments />} />
+            <Route path="schedules" element={<Schedules />} />
+            <Route path="subjects" element={<Subjects />} />
+            <Route path="submission-links" element={<SubmissionLinks />} />
+            <Route path="submission-tracking" element={<SubmissionTracking />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="users" element={<Users />} />
+            <Route path="contacts" element={<AdminContacts />} />
+            <Route path="semesters" element={<Semesters />} />
+            <Route path="export" element={<ExportData />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="internal-links" element={<InternalLink />} />
+            <Route path="resource-center" element={<ResourceCenter />} />
+            <Route path="sheet-data" element={<SheetData />} />
+          </Route>
         </Route>
 
         {/* ------------------------------------
-            4. Error Page (ไม่พบหน้า)
+            4. 404 Error Page (ครอบจักรวาล)
             ------------------------------------ */}
-        {/* ถ้าคุณยังไม่มีไฟล์ NotFound.jsx ให้แสดงเป็น div แทน */}
-        <Route 
-          path="*" 
-          element={
-            <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white text-3xl font-bold">
-              404 - Page Not Found
-            </div>
-          } 
-        />
-
+        <Route path="*" element={<NotFound />} />
+        
       </Routes>
     </Router>
   );
