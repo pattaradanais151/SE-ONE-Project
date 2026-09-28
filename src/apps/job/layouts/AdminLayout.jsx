@@ -5,7 +5,8 @@ import { supabase } from '../../../shared/lib/supabase';
 import { 
   LayoutDashboard, Megaphone, ClipboardList, CalendarDays, BookOpen, 
   Link2, FileCheck, Trophy, Users, Contact, CalendarClock, UserCircle, 
-  LogOut, Menu, X, Sun, Moon, ShieldCheck, Database, ChevronLeft, ChevronRight
+  LogOut, Menu, X, Sun, Moon, ShieldCheck, Database, ChevronLeft, ChevronRight,
+  FolderOpen, FileSpreadsheet, Link as LinkIcon
 } from 'lucide-react';
 import 'animate.css';
 
@@ -95,15 +96,19 @@ export default function AdminLayout() {
     localStorage.setItem('isSidebarCollapsed', JSON.stringify(newState));
   };
 
+  // 📌 เพิ่มเมนูที่ตกหล่นให้ครบทุกไฟล์
   const navItems = [
-    { title: 'Dashboard', path: '/sework/admin/dashboard', icon: <LayoutDashboard size={20} /> },
+    { title: 'ภาพรวมระบบ (Dashboard)', path: '/sework/admin/dashboard', icon: <LayoutDashboard size={20} /> },
     { title: 'ประกาศ (Announcements)', path: '/sework/admin/announcements', icon: <Megaphone size={20} /> },
     { title: 'สั่งงาน (Assignments)', path: '/sework/admin/assignments', icon: <ClipboardList size={20} /> },
     { title: 'ตารางเรียน (Schedules)', path: '/sework/admin/schedules', icon: <CalendarDays size={20} /> },
     { title: 'รายวิชา (Subjects)', path: '/sework/admin/subjects', icon: <BookOpen size={20} /> },
+    { title: 'ชีตการเรียน (Sheet Data)', path: '/sework/admin/sheet-data', icon: <FileSpreadsheet size={20} /> },
+    { title: 'คลังเอกสารกลาง (Resource)', path: '/sework/admin/resource-center', icon: <FolderOpen size={20} /> },
     { title: 'แหล่งส่งงาน (Links)', path: '/sework/admin/submission-links', icon: <Link2 size={20} /> },
     { title: 'ติดตามงาน (Tracking)', path: '/sework/admin/submission-tracking', icon: <FileCheck size={20} /> },
     { title: 'กระดานคะแนน (Leaderboard)', path: '/sework/admin/leaderboard', icon: <Trophy size={20} /> },
+    { title: 'ลิงก์ภายใน (Internal Links)', path: '/sework/admin/internal-links', icon: <LinkIcon size={20} /> },
     { title: 'รายชื่อนักศึกษา (Users)', path: '/sework/admin/users', icon: <Users size={20} /> },
     { title: 'รายชื่อแอดมิน (Contacts)', path: '/sework/admin/contacts', icon: <Contact size={20} /> },
     { title: 'ปีการศึกษา (Semesters)', path: '/sework/admin/semesters', icon: <CalendarClock size={20} /> },
@@ -122,7 +127,7 @@ export default function AdminLayout() {
         <div className={`p-6 flex items-center border-b border-gray-200 dark:border-zinc-800/80 relative transition-all ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3'}`}>
           <div className="w-12 h-12 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl flex items-center justify-center shadow-sm p-1.5 shrink-0 overflow-hidden">
             <img 
-              src="/logo.PNG" 
+              src="/logo.png" 
               alt="SE Logo" 
               className="w-full h-full object-contain"
               onError={(e) => { e.target.outerHTML = '<span class="font-bold text-[#0071e3]">SE</span>' }} 
@@ -166,6 +171,7 @@ export default function AdminLayout() {
           ))}
         </div>
 
+        {/* เมนู Profile ไว้ล่างสุด */}
         <div className={`p-4 border-t border-gray-200 dark:border-zinc-800/80 ${isSidebarCollapsed ? 'px-2' : ''}`}>
           <NavLink
             to="/sework/admin/profile"
@@ -198,7 +204,7 @@ export default function AdminLayout() {
       <div className="lg:hidden fixed top-0 w-full h-16 bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border-b border-gray-200 dark:border-zinc-800/80 z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg flex items-center justify-center overflow-hidden p-1">
-             <img src="/logo.PNG" alt="Logo" className="w-full h-full object-contain" />
+             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <span className="font-bold text-sm">Admin</span>
         </div>
@@ -244,6 +250,21 @@ export default function AdminLayout() {
                   {item.title}
                 </NavLink>
               ))}
+              
+              {/* Profile Link in Mobile */}
+              <div className="pt-2 mt-2 border-t border-gray-200 dark:border-zinc-800/50">
+                <NavLink
+                  to="/sework/admin/profile"
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      isActive ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white' : 'text-zinc-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                    }`
+                  }
+                >
+                  <UserCircle size={20} />
+                  ตั้งค่าโปรไฟล์
+                </NavLink>
+              </div>
             </div>
             <div className="p-4 border-t border-gray-200 dark:border-zinc-800">
               <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">

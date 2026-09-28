@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SE-ONE.SITE Updates</title>
+    <link>https://seone.site/</link>
+    <description>อัปเดตข่าวสารและประกาศจากสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL</description>
+    <language>th-th</language>
+    <lastBuildDate>Mon, 28 Sep 2026 10:00:00 +0700</lastBuildDate>
+    <atom:link href="https://seone.site/rss.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>เปิดใช้งานระบบ SE-Job Workspace อย่างเป็นทางการ</title>
+      <link>https://seone.site/sework</link>
+      <description>ระบบจัดการการเรียน ส่งงาน ติดตามคะแนน แบบครบวงจรและเรียลไทม์ พร้อมให้บริการแล้ว</description>
+      <pubDate>Mon, 28 Sep 2026 09:00:00 +0700</pubDate>
+      <guid>https://seone.site/sework</guid>
+    </item>
+  </channel>
+</rss>

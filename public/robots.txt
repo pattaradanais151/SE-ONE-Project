@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /portfolio
+Disallow: /sework/admin/
+Disallow: /sework/login
+Disallow: /sework/register
+Sitemap: https://seone.site/sitemap.xml

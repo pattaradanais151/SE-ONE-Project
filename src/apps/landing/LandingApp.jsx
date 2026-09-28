@@ -69,6 +69,13 @@ export default function LandingApp() {
       onDragStart={preventAll}
       className="min-h-screen bg-[#fbfbfd] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] font-sans selection:bg-[#0071e3] selection:text-white transition-colors duration-500 overflow-x-hidden select-none"
     >
+      <style>{`
+        /* Custom Scrollbar Apple Style */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(134, 134, 139, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(134, 134, 139, 0.8); }
+      `}</style>
       
       {/* ------------------------------------------
           🍎 Global Navbar (Apple Glassmorphism)
@@ -76,7 +83,7 @@ export default function LandingApp() {
       <nav className="fixed top-0 w-full h-[52px] bg-white/70 dark:bg-black/70 backdrop-blur-md border-b border-gray-200/50 dark:border-white/10 z-50 transition-colors duration-500">
         <div className="max-w-5xl mx-auto h-full px-4 flex items-center justify-between text-xs font-semibold tracking-wide">
           <div className="flex items-center gap-6">
-            {/* โลโก้แอปที่ดึงมาจากไฟล์ (แก้ไข path เป็นตัวเล็ก .png ให้ตรงกับไฟล์จริง) */}
+            {/* โลโก้แอปที่ดึงมาจากไฟล์ */}
             <div className="cursor-pointer shrink-0 flex items-center justify-center" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
               <div className="w-8 h-8 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-sm transition-transform hover:scale-105">
                 <img 

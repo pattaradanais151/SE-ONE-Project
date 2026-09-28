@@ -3,7 +3,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { supabase } from '../../../../shared/lib/supabase';
 import { 
-  FileCheck, Search, ChevronDown, CheckCircle, Clock, AlertTriangle 
+  FileCheck, Search, CheckCircle2, UserCheck, 
+  X, Loader2, Clock, AlertTriangle, ArrowRight, Check
 } from 'lucide-react';
 import 'animate.css';
 
@@ -12,8 +13,6 @@ export default function SubmissionTracking() {
   const [activeSemester, setActiveSemester] = useState(null);
   
   const [assignments, setAssignments] = useState([]);
-  const [selectedAssignment, setSelectedAssignment] = useState('');
-  
   const [users, setUsers] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,11 +20,15 @@ export default function SubmissionTracking() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const isUser = useMemo(() => userProfile?.role === 'User', [userProfile]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+
   const preventAction = (e) => e.preventDefault();
+  const isSuperAdminOrAdmin = useMemo(() => userProfile?.role === 'Super Admin' || userProfile?.role === 'Admin', [userProfile]);
+  const isUserRole = useMemo(() => userProfile?.role === 'User', [userProfile]);
 
   useEffect(() => {
-    if (activeRoom.id) {
+    if (activeRoom?.id) {
       fetchInitialData();
     }
   }, [activeRoom]);
@@ -37,75 +40,59 @@ export default function SubmissionTracking() {
       setActiveSemester(sem);
 
       if (sem && activeRoom.id) {
-        // ดึงงานทั้งหมดของห้องนี้
+        // ดึงงานเฉพาะของห้องที่เลือก
         const { data: tasks } = await supabase
           .from('assignments')
-          .select('id, title, due_date')
+          .select('id, title, subjects(code, name)')
           .eq('room_id', activeRoom.id)
           .eq('semester_id', sem.id)
           .order('created_at', { ascending: false });
         
         setAssignments(tasks || []);
-        if (tasks && tasks.length > 0) {
-          setSelectedAssignment(tasks[0].id);
-        }
 
-        // ดึงนักศึกษาทั้งหมด (Role = User) 
-        // *หมายเหตุ: ถ้าโปรเจกต์มี Field ระบุห้องใน profile ให้ .eq('room_id', activeRoom.id) เพิ่ม
-        const { data: students } = await supabase
+        // 📌 ดึงผู้ใช้งาน "แยกตามห้อง (room_access)" ที่เลือกอยู่เท่านั้น (แก้ไขแล้ว)
+        const { data: allUsers, error: userError } = await supabase
           .from('profiles')
-          .select('id, first_name, last_name, nickname')
-          .eq('role', 'User')
+          .select('id, first_name, last_name, nickname, avatar_url, role')
+          .eq('room_access', activeRoom.id) // <--- เปลี่ยนตรงนี้เป็น room_access
           .order('first_name', { ascending: true });
           
-        setUsers(students || []);
+        if (userError) console.error("Profile Fetch Error:", userError);
+        setUsers(allUsers || []);
+
+        // ดึงข้อมูลการส่งงานของงานในห้องนี้
+        const taskIds = tasks?.map(t => t.id) || [];
+        if (taskIds.length > 0) {
+          const { data: subs } = await supabase.from('submissions').select('*').in('assignment_id', taskIds);
+          setSubmissions(subs || []);
+        }
       }
     } catch (error) {
-      console.error('Error fetching initial data:', error);
+      console.error('Error fetching tracking data:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (selectedAssignment) {
-      fetchSubmissions();
-    }
-  }, [selectedAssignment]);
-
-  const fetchSubmissions = async () => {
-    try {
-      // สมมติโครงสร้าง table 'submissions': id, assignment_id, user_id, status
-      const { data } = await supabase
-        .from('submissions')
-        .select('*')
-        .eq('assignment_id', selectedAssignment);
-      
-      setSubmissions(data || []);
-    } catch (error) {
-      console.error('Error fetching submissions:', error);
-    }
-  };
-
-  const sendDiscordLog = async (studentName, newStatus) => {
+  const sendDiscordLog = async (studentName, taskTitle, newStatus) => {
     const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL;
     if (!webhookUrl) return;
 
     try {
-      const task = assignments.find(a => a.id === selectedAssignment);
       const color = newStatus === 'ตรวจแล้ว' ? 3066993 : newStatus === 'ส่งแล้ว' ? 3447003 : 15158332;
-      const userName = userProfile?.first_name || 'Admin';
+      const adminName = userProfile?.first_name || 'Admin';
 
       const payload = {
         embeds: [{
           title: "📊 อัปเดตสถานะการส่งงาน",
           color: color,
           fields: [
-            { name: "📌 ชื่องาน", value: task?.title || '-', inline: false },
-            { name: "🧑‍🎓 นักศึกษา", value: studentName, inline: true },
+            { name: "📌 ชื่องาน", value: taskTitle || '-', inline: false },
+            { name: "🧑‍🎓 ผู้ใช้งาน", value: studentName, inline: true },
             { name: "สถานะใหม่", value: newStatus, inline: true },
-            { name: "👤 ผู้ตรวจ", value: `${userName} (${userProfile?.role || 'Unknown'})`, inline: false }
+            { name: "👤 ผู้ตรวจ", value: `${adminName} (${userProfile?.role || 'Unknown'})`, inline: false }
           ],
+          footer: { text: `SE Portal Tracking • ${activeRoom.name}` },
           timestamp: new Date().toISOString()
         }]
       };
@@ -116,36 +103,85 @@ export default function SubmissionTracking() {
     }
   };
 
-  const updateStatus = async (studentId, studentName, newStatus) => {
-    setIsUpdating(true);
-    try {
-      // เช็คก่อนว่าเคยมี Record หรือยัง
-      const existing = submissions.find(s => s.user_id === studentId);
+  const openCheckModal = (task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
 
-      if (existing) {
-        const { error } = await supabase.from('submissions').update({ status: newStatus }).eq('id', existing.id);
-        if (error) throw error;
+  const closeModal = () => {
+    setSelectedTask(null);
+    setIsModalOpen(false);
+    document.body.style.overflow = 'auto';
+  };
+
+  const toggleStudentStatus = async (student) => {
+    if (!isSuperAdminOrAdmin || !selectedTask) return;
+    if (isUpdating) return;
+    setIsUpdating(true);
+
+    try {
+      const existingSub = submissions.find(s => s.user_id === student.id && s.assignment_id === selectedTask.id);
+      const currentStatus = existingSub?.status === 'ตรวจแล้ว' ? 'รอส่ง' : 'ตรวจแล้ว';
+
+      setSubmissions(prev => {
+        const newSubs = [...prev];
+        const idx = newSubs.findIndex(s => s.user_id === student.id && s.assignment_id === selectedTask.id);
+        if (idx > -1) newSubs[idx].status = currentStatus;
+        else newSubs.push({ user_id: student.id, assignment_id: selectedTask.id, status: currentStatus });
+        return newSubs;
+      });
+
+      if (existingSub) {
+        await supabase.from('submissions').update({ status: currentStatus }).eq('id', existingSub.id);
       } else {
-        const { error } = await supabase.from('submissions').insert({
-          assignment_id: selectedAssignment,
-          user_id: studentId,
-          status: newStatus
-        });
-        if (error) throw error;
+        await supabase.from('submissions').insert({ assignment_id: selectedTask.id, user_id: student.id, status: currentStatus });
       }
 
-      await sendDiscordLog(studentName, newStatus);
-      await fetchSubmissions();
+      await sendDiscordLog(student.first_name, selectedTask.title, currentStatus);
+
     } catch (error) {
       alert(`เกิดข้อผิดพลาด: ${error.message}`);
+      fetchInitialData();
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const getStudentStatus = (studentId) => {
-    const sub = submissions.find(s => s.user_id === studentId);
+  const getStudentStatus = (studentId, taskId) => {
+    const sub = submissions.find(s => s.user_id === studentId && s.assignment_id === taskId);
     return sub ? sub.status : 'รอส่ง';
+  };
+
+  const updateStatusDirectly = async (studentId, studentName, taskId, taskTitle, newStatus) => {
+    if (!isSuperAdminOrAdmin) return;
+    if (isUpdating) return;
+    setIsUpdating(true);
+    
+    try {
+      const existing = submissions.find(s => s.user_id === studentId && s.assignment_id === taskId);
+      
+      setSubmissions(prev => {
+        const copy = [...prev];
+        const idx = copy.findIndex(s => s.user_id === studentId && s.assignment_id === taskId);
+        if (idx !== -1) copy[idx].status = newStatus;
+        else copy.push({ user_id: studentId, assignment_id: taskId, status: newStatus });
+        return copy;
+      });
+
+      if (existing) {
+        await supabase.from('submissions').update({ status: newStatus }).eq('id', existing.id);
+      } else {
+        await supabase.from('submissions').insert({ assignment_id: taskId, user_id: studentId, status: newStatus });
+      }
+
+      await sendDiscordLog(studentName, taskTitle, newStatus);
+    } catch (error) {
+      alert(`เกิดข้อผิดพลาด: ${error.message}`);
+      fetchInitialData();
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const filteredUsers = useMemo(() => {
@@ -155,149 +191,192 @@ export default function SubmissionTracking() {
     );
   }, [users, searchQuery]);
 
-  const StatusBadge = ({ status }) => {
-    switch(status) {
-      case 'ตรวจแล้ว':
-        return <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-bold border border-emerald-200 dark:border-emerald-500/20"><CheckCircle className="w-3.5 h-3.5"/> ตรวจแล้ว</span>;
-      case 'ส่งแล้ว':
-        return <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-500/10 text-[#0071e3] dark:text-blue-400 rounded-full text-xs font-bold border border-blue-200 dark:border-blue-500/20"><Clock className="w-3.5 h-3.5"/> ส่งแล้ว (รอตรวจ)</span>;
-      default:
-        return <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold border border-amber-200 dark:border-amber-500/20"><AlertTriangle className="w-3.5 h-3.5"/> รอส่ง</span>;
-    }
+  const getProgress = (taskId) => {
+    if (users.length === 0) return { percent: 0, submitted: 0, total: 0 };
+    const submittedCount = submissions.filter(s => s.assignment_id === taskId && (s.status === 'ตรวจแล้ว' || s.status === 'ส่งแล้ว')).length;
+    const percentage = Math.round((submittedCount / users.length) * 100) || 0;
+    return { percent: percentage, submitted: submittedCount, total: users.length };
   };
 
   return (
     <div onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} className="animate__animated animate__fadeIn select-none font-sans pb-10">
       
-      {/* Header Panel */}
-      <div className="bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm transition-colors">
+      <div className="bg-[#121214] border border-zinc-800/80 rounded-[1.5rem] p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm transition-colors">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-purple-50 dark:bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 shadow-sm">
+          <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-500 shadow-sm shrink-0">
             <FileCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">ติดตามการส่งงาน (Tracking)</h1>
-            <p className="text-sm text-zinc-500">
-              อัปเดตสถานะการตรวจงานของนักศึกษา <span className="font-bold text-[#0071e3]">{activeRoom.name}</span>
-            </p>
+            <h1 className="text-2xl font-bold text-white">ติดตามสถานะการส่งงาน</h1>
+            <p className="text-sm text-zinc-400">ตรวจสอบและเช็คชื่อการส่งงานของ {activeRoom.name}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative w-full md:w-64">
+        <div className="flex items-center gap-6 w-full md:w-auto">
+          <div className="text-center bg-zinc-900 px-5 py-2.5 rounded-xl border border-zinc-800">
+            <span className="text-[10px] uppercase text-zinc-500 font-bold block mb-1">งานทั้งหมด</span>
+            <span className="text-xl font-bold text-white leading-none">{assignments.length}</span>
+          </div>
+          <div className="text-center bg-emerald-900/20 px-5 py-2.5 rounded-xl border border-emerald-500/20">
+            <span className="text-[10px] uppercase text-emerald-500 font-bold block mb-1">ผู้ใช้ในห้อง</span>
+            <span className="text-xl font-bold text-emerald-400 leading-none">{users.length}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#121214] border border-zinc-800/80 rounded-[1.5rem] p-6 md:p-8 min-h-[50vh]">
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-800/80">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            รายการงานทั้งหมด
+          </h2>
+          <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
             <input 
               type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาชื่อนักศึกษา..." 
-              className="w-full bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-full pl-10 pr-4 py-2.5 text-sm outline-none focus:border-purple-500 transition-colors"
+              placeholder="ค้นหาชื่อนักศึกษาเพื่อดักจับ..." 
+              className="w-full bg-[#1e1e24] border border-zinc-800 rounded-full pl-10 pr-4 py-2 text-sm text-white outline-none focus:border-[#0071e3] transition-colors"
             />
           </div>
         </div>
+
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-10 h-10 animate-spin text-[#0071e3]"/>
+          </div>
+        ) : assignments.length === 0 ? (
+          <div className="py-12 text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl">ไม่พบรายการงานในห้องนี้</div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center px-4 py-2 text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
+              <div className="w-24 shrink-0">รหัสวิชา</div>
+              <div className="flex-1">ชื่องาน</div>
+              <div className="w-48 text-right pr-6 hidden md:block">ความคืบหน้า</div>
+              <div className="w-28 text-center shrink-0">เช็คชื่อ</div>
+            </div>
+
+            {assignments.map(task => {
+              const progress = getProgress(task.id);
+              return (
+                <div key={task.id} className="flex items-center p-3 sm:p-4 bg-[#1e1e24] hover:bg-[#25252b] border border-zinc-800 rounded-2xl transition-colors group">
+                  <div className="w-20 sm:w-24 shrink-0">
+                    <span className="px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded-md text-[11px] font-mono border border-zinc-700">
+                      {task.subjects?.code || '-'}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0 pr-4">
+                    <h4 className="font-bold text-sm sm:text-[15px] text-zinc-200 truncate">{task.title}</h4>
+                  </div>
+                  
+                  <div className="w-48 shrink-0 pr-6 hidden md:flex flex-col items-end gap-1.5">
+                    <div className="flex justify-between w-full text-[10px] font-medium text-zinc-400">
+                      <span>ส่งแล้ว {progress.submitted}</span>
+                      <span className="text-emerald-400">{progress.percent}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${progress.percent}%` }}></div>
+                    </div>
+                  </div>
+
+                  <div className="w-24 sm:w-28 shrink-0 flex justify-end">
+                    <button 
+                      onClick={() => openCheckModal(task)}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-xl text-[11px] sm:text-xs font-bold transition-all shadow-lg shadow-blue-500/10 active:scale-95"
+                    >
+                      <UserCheck className="w-4 h-4" /> ตรวจงาน
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        
-        {/* Left Col: Task Selector */}
-        <div className="lg:col-span-1 bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none sticky top-24">
-          <h2 className="text-sm font-bold text-zinc-500 mb-4 uppercase tracking-wider border-b border-gray-100 dark:border-zinc-800 pb-2">เลือกงานที่ต้องการตรวจ</h2>
-          
-          {isLoading ? (
-            <div className="py-10 text-center text-sm text-zinc-500">โหลดข้อมูล...</div>
-          ) : assignments.length === 0 ? (
-            <div className="py-10 text-center text-sm text-zinc-500 bg-gray-50 dark:bg-zinc-800/50 rounded-xl border border-dashed border-gray-200 dark:border-zinc-700">ไม่มีงานในระบบ</div>
-          ) : (
-            <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-              {assignments.map(task => (
-                <button 
-                  key={task.id}
-                  onClick={() => setSelectedAssignment(task.id)}
-                  className={`w-full text-left p-4 rounded-xl border transition-all ${selectedAssignment === task.id ? 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/30 shadow-sm' : 'bg-zinc-50 dark:bg-[#09090b] border-gray-100 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600'}`}
-                >
-                  <p className={`font-bold text-sm truncate ${selectedAssignment === task.id ? 'text-purple-700 dark:text-purple-400' : 'text-zinc-800 dark:text-zinc-200'}`}>
-                    {task.title}
-                  </p>
-                </button>
-              ))}
+      {isModalOpen && selectedTask && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate__animated animate__fadeIn animate__faster">
+          <div className="bg-[#121214] border border-zinc-800 rounded-[2rem] w-full max-w-4xl shadow-2xl flex flex-col h-[85vh] sm:h-[90vh] animate__animated animate__zoomIn animate__faster overflow-hidden" onClick={e => e.stopPropagation()}>
+            
+            <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-[#16161a]">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+                  <UserCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">เช็คชื่อการส่งงาน</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded text-[10px] font-mono font-bold">
+                      {selectedTask.subjects?.code}
+                    </span>
+                    <span className="text-xs sm:text-sm text-zinc-400 font-medium">ใบงานที่: {selectedTask.title}</span>
+                  </div>
+                </div>
+              </div>
+              <button onClick={closeModal} className="p-2 rounded-full bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+                <X className="w-5 h-5"/>
+              </button>
             </div>
-          )}
-        </div>
 
-        {/* Right Col: Student List */}
-        <div className="lg:col-span-3 bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none min-h-[50vh]">
-          {isLoading ? (
-            <div className="flex justify-center py-20">
-              <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-purple-500"></div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[#09090b]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {users.length === 0 ? (
+                  <div className="col-span-full py-12 text-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl">
+                    ไม่พบผู้ใช้ในห้องนี้
+                  </div>
+                ) : filteredUsers.map(student => {
+                  const status = getStudentStatus(student.id, selectedTask.id);
+                  const isChecked = status === 'ตรวจแล้ว';
+
+                  return (
+                    <div 
+                      key={student.id}
+                      onClick={() => toggleStudentStatus(student)}
+                      className={`relative flex items-center justify-between p-4 rounded-[1.25rem] cursor-pointer transition-all duration-300 border-2 ${
+                        isChecked 
+                          ? 'bg-emerald-900/10 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)]' 
+                          : 'bg-[#1e1e24] border-zinc-800 hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${isChecked ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-500'}`}>
+                          <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className={`font-bold text-sm ${isChecked ? 'text-emerald-400' : 'text-zinc-200'}`}>
+                            {student.first_name} {student.last_name || ''}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <p className="text-[11px] text-zinc-500 font-mono">@{student.nickname || 'user'}</p>
+                            {student.role !== 'User' && <span className="text-[9px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded uppercase font-bold">{student.role}</span>}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={`flex items-center gap-2`}>
+                        {status === 'ส่งแล้ว' && !isChecked && (
+                          <span className="text-[10px] text-[#0071e3] font-bold bg-[#0071e3]/10 px-2 py-1 rounded">ส่งแล้ว</span>
+                        )}
+                        <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${isChecked ? 'bg-emerald-500' : 'bg-zinc-800 border border-zinc-700'}`}>
+                          {isChecked && <Check className="w-4 h-4 text-white" />}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          ) : !selectedAssignment ? (
-            <div className="flex flex-col items-center justify-center h-full text-zinc-400 opacity-60">
-              <FileCheck className="w-16 h-16 mb-4" />
-              <p>กรุณาเลือกงานจากเมนูด้านซ้ายเพื่อเริ่มตรวจ</p>
+
+            <div className="p-4 sm:p-6 border-t border-zinc-800 bg-[#16161a] shrink-0 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-[11px] text-zinc-500 font-medium">ข้อมูลอัปเดตเรียลไทม์ (Auto-Save)</span>
+              </div>
+              <button onClick={closeModal} className="px-6 py-2.5 bg-white text-black font-bold rounded-xl text-sm hover:bg-zinc-200 transition-colors active:scale-95 shadow-sm">
+                เสร็จสิ้น
+              </button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-zinc-600 dark:text-zinc-400 min-w-[700px]">
-                <thead className="border-b border-gray-200 dark:border-zinc-800 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                  <tr>
-                    <th className="pb-4 px-4">ชื่อ-นามสกุล</th>
-                    <th className="pb-4 px-4 w-32">ชื่อเล่น</th>
-                    <th className="pb-4 px-4 w-40">สถานะปัจจุบัน</th>
-                    <th className="pb-4 px-4 w-56 text-right">ปรับปรุงสถานะ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.length === 0 ? (
-                    <tr><td colSpan="4" className="py-10 text-center text-zinc-400">ไม่พบข้อมูลนักศึกษา</td></tr>
-                  ) : (
-                    filteredUsers.map(student => {
-                      const currentStatus = getStudentStatus(student.id);
-                      return (
-                        <tr key={student.id} className="border-b border-gray-100 dark:border-zinc-800/50 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                          <td className="py-4 px-4">
-                            <span className="font-bold text-zinc-900 dark:text-white">{student.first_name} {student.last_name}</span>
-                          </td>
-                          <td className="py-4 px-4">{student.nickname || '-'}</td>
-                          <td className="py-4 px-4">
-                            <StatusBadge status={currentStatus} />
-                          </td>
-                          <td className="py-4 px-4 text-right">
-                            <div className="flex justify-end gap-2">
-                              {/* ไม่แสดงปุ่มเปลี่ยนสถานะถ้าผู้ใช้งานเป็นแค่ User */}
-                              {!isUser && (
-                                <>
-                                  <button 
-                                    onClick={() => updateStatus(student.id, student.first_name, 'รอส่ง')}
-                                    disabled={isUpdating || currentStatus === 'รอส่ง'}
-                                    className="px-3 py-1.5 rounded-lg text-[11px] font-bold border border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 disabled:opacity-30 transition-colors"
-                                  >
-                                    รอส่ง
-                                  </button>
-                                  <button 
-                                    onClick={() => updateStatus(student.id, student.first_name, 'ส่งแล้ว')}
-                                    disabled={isUpdating || currentStatus === 'ส่งแล้ว'}
-                                    className="px-3 py-1.5 rounded-lg text-[11px] font-bold border border-[#0071e3]/30 bg-blue-50 dark:bg-[#0071e3]/10 text-[#0071e3] hover:bg-blue-100 dark:hover:bg-[#0071e3]/20 disabled:opacity-30 transition-colors"
-                                  >
-                                    ส่งแล้ว
-                                  </button>
-                                  <button 
-                                    onClick={() => updateStatus(student.id, student.first_name, 'ตรวจแล้ว')}
-                                    disabled={isUpdating || currentStatus === 'ตรวจแล้ว'}
-                                    className="px-3 py-1.5 rounded-lg text-[11px] font-bold border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 disabled:opacity-30 transition-colors shadow-sm"
-                                  >
-                                    ตรวจแล้ว
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
+
     </div>
   );
 }

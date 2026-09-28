@@ -2,17 +2,77 @@
 <html lang="th" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My SE-ONE.SITE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     
-    <!-- Google Fonts API -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- ==========================================
+         🚀 Primary Meta Tags (สุดยอด SEO)
+         ========================================== -->
+    <title>SE-ONE.SITE | Software Engineering Workspace</title>
+    <meta name="title" content="SE-ONE.SITE | Software Engineering Workspace" />
+    <meta name="description" content="ระบบจัดการการเรียน ส่งงาน และพอร์ตโฟลิโอส่วนตัว สำหรับนักศึกษาสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL Gen 4" />
+    <meta name="keywords" content="SE, Software Engineering, RMUTL, Portfolio, Workspace, SE-Job, ระบบจัดการการเรียน, วิศวกรรมซอฟต์แวร์, เชียงใหม่" />
+    <meta name="author" content="Pattaradanai Saiwongkham" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://seone.site/" />
+
+    <!-- ==========================================
+         🌐 Open Graph / Facebook (เวลาแชร์ลิงก์)
+         ========================================== -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://seone.site/" />
+    <meta property="og:title" content="SE-ONE.SITE | Software Engineering Workspace" />
+    <meta property="og:description" content="ระบบจัดการการเรียน ส่งงาน และพอร์ตโฟลิโอส่วนตัว สำหรับนักศึกษาสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL Gen 4" />
+    <meta property="og:image" content="https://seone.site/logo.png" />
+    <meta property="og:site_name" content="SE-ONE.SITE" />
+    <meta property="og:locale" content="th_TH" />
+
+    <!-- ==========================================
+         🐦 Twitter Cards
+         ========================================== -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://seone.site/" />
+    <meta property="twitter:title" content="SE-ONE.SITE | Software Engineering Workspace" />
+    <meta property="twitter:description" content="ระบบจัดการการเรียน ส่งงาน และพอร์ตโฟลิโอส่วนตัว สำหรับนักศึกษาสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL Gen 4" />
+    <meta property="twitter:image" content="https://seone.site/logo.png" />
+
+    <!-- ==========================================
+         📱 PWA / Web App Manifest (ติดตั้งเป็นแอป)
+         ========================================== -->
+    <meta name="application-name" content="SE Workspace" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SE Workspace" />
+    <!-- สลับสี Status Bar ตาม Theme -->
+    <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ==========================================
+         ⭐ Favicon & RSS
+         ========================================== -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="shortcut icon" href="/logo.png" type="image/x-icon" />
+    <link rel="alternate" type="application/rss+xml" title="SE-ONE.SITE Updates" href="https://seone.site/rss.xml" />
+
+    <!-- ==========================================
+         ⚡ Priority Hints & Preload (โหลดภาพ/ฟอนต์ก่อน)
+         ========================================== -->
+    <!-- บังคับให้เบราว์เซอร์โหลดโลโก้เป็นอันดับแรกสุด (fetchpriority) -->
+    <link rel="preload" as="image" href="/logo.png" fetchpriority="high" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- ==========================================
+         🚀 Instant.Page (Preload หน้าเว็บล่วงหน้าเวลานำเมาส์ไปชี้ลิงก์)
+         ========================================== -->
+    <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEq3ZZ1OOFJwGteF6R1180N5y04YqQAHjB2Z4o2aZ3v9fOSbAkiBwKzLOhH"></script>
   </body>
 </html>
