@@ -80,7 +80,7 @@ export default function ForgotPassword() {
   return (
     <div onCopy={preventAction} onCut={preventAction} onDragStart={preventAction} className="min-h-screen w-full flex flex-col items-center justify-center bg-[#fbfbfd] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] font-sans transition-colors duration-500 relative px-4 select-none">
       <div className="absolute top-0 left-0 w-full flex justify-between items-center p-6 z-50">
-        <button onClick={() => navigate('/job/login')} className="flex items-center gap-2 text-sm font-medium bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md px-4 py-2 rounded-full border border-gray-200 dark:border-zinc-800 shadow-sm hover:scale-105 transition-all">
+        <button onClick={() => navigate('/sework/login')} className="flex items-center gap-2 text-sm font-medium bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md px-4 py-2 rounded-full border border-gray-200 dark:border-zinc-800 shadow-sm hover:scale-105 transition-all">
           <ArrowLeft className="w-4 h-4" /> กลับสู่หน้าเข้าสู่ระบบ
         </button>
         <button onClick={() => setIsDark(!isDark)} className="p-2.5 rounded-full border border-gray-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm hover:scale-110 transition-all">
@@ -166,7 +166,7 @@ export default function ForgotPassword() {
               </div>
               <h2 className="text-2xl font-bold mb-3">เปลี่ยนรหัสผ่านสำเร็จ!</h2>
               <p className="text-sm text-zinc-500 mb-8 max-w-[280px]">รหัสผ่านของคุณถูกอัปเดตเรียบร้อยแล้ว เข้าสู่ระบบได้ทันที</p>
-              <button onClick={() => navigate('/job/login')} className="w-full py-3.5 px-4 bg-[#0071e3] text-white rounded-xl font-medium active:scale-[0.98]">
+              <button onClick={() => navigate('/sework/login')} className="w-full py-3.5 px-4 bg-[#0071e3] text-white rounded-xl font-medium active:scale-[0.98]">
                 กลับไปหน้าเข้าสู่ระบบ
               </button>
             </div>

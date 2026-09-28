@@ -11,6 +11,10 @@ import PortfolioApp from './apps/portfolio/PortfolioApp';
 import LandingLinks from './apps/job/views/LandingLinks';
 import NotFound from './apps/landing/NotFound';
 import PDPAPolicyLA from './apps/job/views/PDPAPolicyLA';
+import ShowcaseApp from './apps/landing/ShowcaseApp';
+import RoadmapApp from './apps/landing/RoadmapApp';
+import GuestbookApp from './apps/landing/GuestbookApp';
+import SupportApp from './apps/landing/SupportApp';
 
 // ====================================
 // 🔐 Auth & SE-Work System (หน้า Login / Register / Error)
@@ -71,30 +75,26 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // เด้งไปที่ /sework/login ถ้ายังไม่ได้ล็อกอิน
   return isAuthenticated ? children : <Navigate to="/sework/login" replace />;
 };
 
-// ====================================
-// 🚀 Main Router
-// ====================================
 export default function App() {
   return (
     <Router>
       <Routes>
-        
-        {/* ------------------------------------
-            1. Public Routes (หน้าหลัก)
-            ------------------------------------ */}
+        {/* 1. Public Routes */}
         <Route path="/" element={<LandingApp />} />
         <Route path="/portfolio" element={<PortfolioApp />} />
+        <Route path="/showcase" element={<ShowcaseApp />} />
+        <Route path="/roadmap" element={<RoadmapApp />} />
+        <Route path="/guestbook" element={<GuestbookApp />} />
+        <Route path="/support" element={<SupportApp />} />
+        
         <Route path="/links" element={<LandingLinks />} />
         <Route path="/pdpa" element={<PDPAPolicyLA />} />
         <Route path="/legal" element={<PDPAPolicyLA />} />
 
-        {/* ------------------------------------
-            2. SE-Work Auth & Core Routes
-            ------------------------------------ */}
+        {/* 2. SE-Work Core Routes */}
         <Route path="/sework">
           <Route index element={<JobHome />} /> 
           <Route path="login" element={<JobLogin />} />
@@ -103,20 +103,9 @@ export default function App() {
           <Route path="maintenance" element={<Maintenance />} />
           <Route path="contact-profile" element={<ContactProfile />} />
 
-          {/* ------------------------------------
-              3. SE-Work Admin Workspace
-              ------------------------------------ */}
-          <Route 
-            path="admin" 
-            element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            {/* Redirect /sework/admin ไปที่ /sework/admin/dashboard โดยอัตโนมัติ */}
+          {/* 3. SE-Work Admin Workspace */}
+          <Route path="admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="dashboard" replace />} />
-            
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="announcements" element={<Announcements />} />
             <Route path="assignments" element={<Assignments />} />
@@ -136,11 +125,8 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* ------------------------------------
-            4. 404 Error Page (ครอบจักรวาล)
-            ------------------------------------ */}
+        {/* 4. 404 Error Page */}
         <Route path="*" element={<NotFound />} />
-        
       </Routes>
     </Router>
   );
