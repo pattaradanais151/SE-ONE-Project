@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { css, keyframes } from '@emotion/css';
 import { 
   Sun, Moon, ChevronRight, Briefcase, Code, Terminal, 
-  ArrowUpRight, Globe, Layers, ShieldCheck, ArrowRight, Cpu, Network
+  ArrowUpRight, Globe, ShieldCheck, ArrowRight, Cpu, Network
 } from 'lucide-react';
 import 'animate.css';
 
@@ -94,7 +94,7 @@ export default function LandingApp() {
       `}</style>
       
       {/* ------------------------------------------
-          🍎 Global Navbar (ตัด Scrollbar ขาวออก + จัดกึ่งกลางเป๊ะ)
+          🍎 Global Navbar
           ------------------------------------------ */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 shadow-sm' : 'bg-transparent'}`}>
         
@@ -117,9 +117,10 @@ export default function LandingApp() {
             <span className="text-sm font-black tracking-tight hidden sm:block">SE-ONE.SITE<span className="text-[#0071e3]">.</span></span>
           </div>
           
-          {/* Menu Center (Absolute Center - No Horizontal Scrollbar) */}
-          <div className="hidden md:flex items-center justify-center gap-8 absolute left-1/2 -translate-x-1/2 w-max">
+          {/* Menu Center */}
+          <div className="hidden lg:flex items-center justify-center gap-8 absolute left-1/2 -translate-x-1/2 w-max">
             <span className="cursor-pointer text-[#0071e3] transition-colors" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>Home</span>
+            <span className="cursor-pointer text-zinc-600 dark:text-zinc-400 hover:text-[#0071e3] dark:hover:text-[#0071e3] transition-colors" onClick={() => navigate('/about')}>About</span>
             <span className="cursor-pointer text-zinc-600 dark:text-zinc-400 hover:text-[#0071e3] dark:hover:text-[#0071e3] transition-colors" onClick={() => navigate('/portfolio')}>Talents</span>
             <span className="cursor-pointer text-zinc-600 dark:text-zinc-400 hover:text-[#0071e3] dark:hover:text-[#0071e3] transition-colors" onClick={() => navigate('/showcase')}>Projects</span>
             <span className="cursor-pointer text-zinc-600 dark:text-zinc-400 hover:text-[#0071e3] dark:hover:text-[#0071e3] transition-colors" onClick={() => navigate('/roadmap')}>Roadmap</span>
@@ -185,7 +186,7 @@ export default function LandingApp() {
       </section>
 
       {/* ------------------------------------------
-          🍎 Features & About Us
+          🍎 Features & Ecosystem (Added SE-ONE IDE)
           ------------------------------------------ */}
       <section className="max-w-[1200px] mx-auto px-6 py-24 relative z-10">
         <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -196,7 +197,8 @@ export default function LandingApp() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Card 1: SE Job System */}
           <div onClick={() => navigate('/sework')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-10 h-[450px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
             <div className="relative z-10">
               <Briefcase className="w-10 h-10 mb-6 text-[#1d1d1f] dark:text-white" />
@@ -209,6 +211,7 @@ export default function LandingApp() {
             <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-gradient-to-br from-[#0071e3]/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
           </div>
 
+          {/* Card 2: Dev Portfolio */}
           <div onClick={() => navigate('/portfolio')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-10 h-[450px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
             <div className="relative z-10">
               <Code className="w-10 h-10 mb-6 text-[#1d1d1f] dark:text-white" />
@@ -219,6 +222,19 @@ export default function LandingApp() {
               สำรวจผลงาน <ChevronRight className="w-5 h-5" />
             </div>
             <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-gradient-to-br from-fuchsia-500/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+          </div>
+
+          {/* Card 3: Coding Playground */}
+          <div onClick={() => navigate('/code')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-10 h-[450px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+            <div className="relative z-10">
+              <Terminal className="w-10 h-10 mb-6 text-[#1d1d1f] dark:text-white" />
+              <h3 className="text-3xl font-bold tracking-tight mb-3">SE-ONE IDE.</h3>
+              <p className="text-[#86868b] dark:text-[#a1a1a6] text-lg font-medium leading-relaxed">พื้นที่ฝึกเขียนโค้ดและรันโปรแกรม<br/>บนเบราว์เซอร์ได้ทันที ไม่ต้องติดตั้ง</p>
+            </div>
+            <div className="relative z-10 flex items-center gap-2 text-emerald-500 font-medium text-lg mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+              เริ่มเขียนโค้ด <ChevronRight className="w-5 h-5" />
+            </div>
+            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
           </div>
         </div>
       </section>

@@ -1,0 +1,38 @@
+# SE-ONE.SITE
+
+> A centralized workspace, learning ecosystem, and talent portfolio for Software Engineering Gen 4 at RMUTL (Chiang Mai).
+
+## 1. Overview
+SE-ONE.SITE is a comprehensive platform designed specifically for software engineering students. It serves as an educational hub, an administrative tool for classes, a showcase for student projects, and a fully functional in-browser coding environment.
+
+## 2. Core Subsystems
+
+### 2.1 SE Job System (/sework)
+A complete Learning Management System (LMS) and administrative dashboard.
+- Features: Assignment submission tracking, announcements, schedule management, leaderboard, and user profile management.
+- Access: Requires authentication. 
+
+### 2.2 SE-ONE IDE (/code)
+A professional-grade, in-browser coding playground.
+- Engine: Powered by Monaco Editor (VS Code engine).
+- Supported Languages: 
+  - Web Native (HTML/CSS/JS) with Live Preview
+  - React 18 JSX compiled via Babel Standalone
+  - Native Python 3.11 execution via Pyodide (WebAssembly)
+  - TypeScript compilation
+  - Mock environments for C and Java
+- Features: Real-time console interception, save/share snippet links, coding challenges, resizable UI, and theme switching.
+
+### 2.3 Talent & Showcase Portfolio (/portfolio, /showcase)
+Publicly accessible directories displaying the capabilities of SE Gen 4 students.
+- Integrates with GitHub API to fetch real-time repository and follower stats.
+
+## 3. Technology Stack
+- Frontend: React 18, Vite
+- Styling: Tailwind CSS v4, Emotion (CSS-in-JS), Lucide Icons
+- Backend/BaaS: Supabase (PostgreSQL, Auth, Realtime WebSockets)
+- Deployment: Cloudflare Pages
+
+## 4. Contact & Support
+- Digital Guestbook: /guestbook
+- Support & Ticketing: /support (Integrates with Discord Webhooks for real-time admin alerts)

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "SE-ONE Workspace",
+  "description": "The official learning ecosystem, IDE, and portfolio platform for Software Engineering Gen 4 at RMUTL.",
+  "version": "2.0.0",
+  "organization": "SE Gen 4 RMUTL",
+  "contact": {
+    "email": "support@seone.site",
+    "url": "https://seone.site/support"
+  },
+  "endpoints": [
+    {
+      "name": "Home",
+      "path": "/",
+      "description": "Main landing page introducing the ecosystem."
+    },
+    {
+      "name": "SE-ONE IDE",
+      "path": "/code",
+      "description": "Web-based code editor supporting Python (WASM), React, TS, and HTML/JS."
+    },
+    {
+      "name": "Talent Portfolio",
+      "path": "/portfolio",
+      "description": "Directory of student developers and their GitHub statistics."
+    },
+    {
+      "name": "Project Showcase",
+      "path": "/showcase",
+      "description": "Gallery of featured applications and projects built by the students."
+    },
+    {
+      "name": "SE Job System",
+      "path": "/sework",
+      "description": "Secure area for assignment submission and class management."
+    }
+  ],
+  "ai_features": {
+    "allows_scraping": true,
+    "provides_api": false
+  }
+}

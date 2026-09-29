@@ -2,77 +2,160 @@
 <html lang="th" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     
-    <!-- ==========================================
-         🚀 Primary Meta Tags (สุดยอด SEO)
-         ========================================== -->
+    <!-- 1. Primary Meta Tags (SEO) -->
     <title>SE-ONE.SITE | Software Engineering Workspace</title>
     <meta name="title" content="SE-ONE.SITE | Software Engineering Workspace" />
-    <meta name="description" content="ระบบจัดการการเรียน ส่งงาน และพอร์ตโฟลิโอส่วนตัว สำหรับนักศึกษาสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL Gen 4" />
-    <meta name="keywords" content="SE, Software Engineering, RMUTL, Portfolio, Workspace, SE-Job, ระบบจัดการการเรียน, วิศวกรรมซอฟต์แวร์, เชียงใหม่" />
-    <meta name="author" content="Pattaradanai Saiwongkham" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="description" content="ระบบจัดการการเรียน ส่งงาน โค้ดดิ้งเพลย์กราวด์ และพอร์ตโฟลิโอส่วนตัว สำหรับนักศึกษาสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL Gen 4" />
+    <meta name="keywords" content="SE, Software Engineering, RMUTL, Portfolio, Workspace, SE-Job, Web IDE, วิศวกรรมซอฟต์แวร์" />
+    <meta name="author" content="SE Gen 4 RMUTL" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <link rel="canonical" href="https://seone.site/" />
 
-    <!-- ==========================================
-         🌐 Open Graph / Facebook (เวลาแชร์ลิงก์)
-         ========================================== -->
+    <!-- 2. Preconnect & DNS Prefetch (Performance) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://supabase.co" />
+    
+    <!-- 3. Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+    <!-- 4. Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://seone.site/" />
-    <meta property="og:title" content="SE-ONE.SITE | Software Engineering Workspace" />
-    <meta property="og:description" content="ระบบจัดการการเรียน ส่งงาน และพอร์ตโฟลิโอส่วนตัว สำหรับนักศึกษาสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL Gen 4" />
+    <meta property="og:title" content="SE-ONE.SITE | Software Engineering Ecosystem" />
+    <meta property="og:description" content="The official learning ecosystem, Cloud IDE, and portfolio platform for Software Engineering Gen 4." />
     <meta property="og:image" content="https://seone.site/logo.png" />
     <meta property="og:site_name" content="SE-ONE.SITE" />
     <meta property="og:locale" content="th_TH" />
 
-    <!-- ==========================================
-         🐦 Twitter Cards
-         ========================================== -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://seone.site/" />
-    <meta property="twitter:title" content="SE-ONE.SITE | Software Engineering Workspace" />
-    <meta property="twitter:description" content="ระบบจัดการการเรียน ส่งงาน และพอร์ตโฟลิโอส่วนตัว สำหรับนักศึกษาสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL Gen 4" />
-    <meta property="twitter:image" content="https://seone.site/logo.png" />
+    <!-- 5. Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://seone.site/" />
+    <meta name="twitter:title" content="SE-ONE.SITE | Software Engineering Ecosystem" />
+    <meta name="twitter:description" content="The official learning ecosystem, Cloud IDE, and portfolio platform for SE Gen 4." />
+    <meta name="twitter:image" content="https://seone.site/logo.png" />
 
-    <!-- ==========================================
-         📱 PWA / Web App Manifest (ติดตั้งเป็นแอป)
-         ========================================== -->
+    <!-- 6. PWA & Apple iOS Support -->
     <meta name="application-name" content="SE Workspace" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SE Workspace" />
-    <!-- สลับสี Status Bar ตาม Theme -->
-    <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <link rel="apple-touch-icon" href="/logo.png" />
-    <link rel="manifest" href="/manifest.json" />
-
-    <!-- ==========================================
-         ⭐ Favicon & RSS
-         ========================================== -->
     <link rel="icon" type="image/png" href="/logo.png" />
-    <link rel="shortcut icon" href="/logo.png" type="image/x-icon" />
-    <link rel="alternate" type="application/rss+xml" title="SE-ONE.SITE Updates" href="https://seone.site/rss.xml" />
 
-    <!-- ==========================================
-         ⚡ Priority Hints & Preload (โหลดภาพ/ฟอนต์ก่อน)
-         ========================================== -->
-    <!-- บังคับให้เบราว์เซอร์โหลดโลโก้เป็นอันดับแรกสุด (fetchpriority) -->
-    <link rel="preload" as="image" href="/logo.png" fetchpriority="high" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- 7. JSON-LD Structured Data (Advanced SEO for Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "SE-ONE.SITE",
+      "url": "https://seone.site/",
+      "description": "Software Engineering Workspace and Portfolio for Gen 4",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Software Engineering RMUTL Gen 4",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://seone.site/logo.png"
+        }
+      }
+    }
+    </script>
 
+    <!-- 8. Critical CSS (Preloader อนิเมชันก่อน React โหลดเสร็จ) -->
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #000000;
+        transition: opacity 0.5s ease-out;
+      }
+      .loader-logo {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 24px;
+        border-radius: 16px;
+        background-color: #121214;
+        border: 1px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 30px rgba(0, 113, 227, 0.2);
+        animation: pulseLogo 2s infinite;
+      }
+      .loader-spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #333;
+        border-top-color: #0071e3;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      .loader-text {
+        margin-top: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: #86868b;
+        letter-spacing: 2px;
+      }
+      @keyframes spin { 100% { transform: rotate(360deg); } }
+      @keyframes pulseLogo {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(0, 113, 227, 0.2); }
+        50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(0, 113, 227, 0.4); }
+      }
+      /* ซ่อน Loader เมื่อ React โหลดเสร็จ */
+      body.loaded #initial-loader {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
   </head>
+
   <body>
+    <!-- Fallback สำหรับบราวเซอร์ที่ปิด JavaScript -->
+    <noscript>
+      <div style="padding: 20px; text-align: center; background: #fff; color: #000;">
+        <strong>JavaScript is disabled.</strong> Please enable JavaScript to access the SE-ONE Workspace.
+      </div>
+    </noscript>
+
+    <!-- Initial Loading Screen -->
+    <div id="initial-loader">
+      <div class="loader-logo">
+        <!-- ใส่ Path รูป Logo จริงแทนตัวอักษรได้ถ้ามี -->
+        <span style="color:#fff; font-family:monospace; font-weight:bold; font-size:14px;">SE</span>
+      </div>
+      <div class="loader-spinner"></div>
+      <div class="loader-text">INITIALIZING SYSTEM...</div>
+    </div>
+
+    <!-- React App Root -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Script สำหรับซ่อน Loader ทันทีที่โหลดเสร็จ -->
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          document.body.classList.add('loaded');
+          setTimeout(() => {
+            const loader = document.getElementById('initial-loader');
+            if (loader) loader.remove();
+          }, 500); // รอให้ fade out เสร็จค่อยลบ DOM ทิ้ง
+        }, 100);
+      });
+    </script>
     
-    <!-- ==========================================
-         🚀 Instant.Page (Preload หน้าเว็บล่วงหน้าเวลานำเมาส์ไปชี้ลิงก์)
-         ========================================== -->
-    <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEq3ZZ1OOFJwGteF6R1180N5y04YqQAHjB2Z4o2aZ3v9fOSbAkiBwKzLOhH"></script>
+    <!-- Instant.page: Preload หน้าล่วงหน้าเมื่อนำเมาส์ไปชี้ลิงก์ (แก้ Hash ให้ถูกต้องแล้ว) -->
+    <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMBh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" crossorigin="anonymous"></script>
   </body>
 </html>

@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { supabase } from './shared/lib/supabase';
 
 // ====================================
-// 🌍 Public Pages (หน้าหลักและระบบทั่วไป)
+// 🌍 Public Pages
 // ====================================
 import LandingApp from './apps/landing/LandingApp';
 import PortfolioApp from './apps/portfolio/PortfolioApp';
@@ -15,9 +15,18 @@ import ShowcaseApp from './apps/landing/ShowcaseApp';
 import RoadmapApp from './apps/landing/RoadmapApp';
 import GuestbookApp from './apps/landing/GuestbookApp';
 import SupportApp from './apps/landing/SupportApp';
+import AboutApp from './apps/landing/AboutApp';
 
 // ====================================
-// 🔐 Auth & SE-Work System (หน้า Login / Register / Error)
+// 💻 Coding Playground
+// ====================================
+import CodingLanding from './apps/coding/CodingLanding';
+import CodingLogin from './apps/coding/CodingLogin';
+import CodingRegister from './apps/coding/CodingRegister';
+import CodingWorkspace from './apps/coding/CodingWorkspace';
+
+// ====================================
+// 🔐 Auth & SE-Work System
 // ====================================
 import JobHome from './apps/job/views/Home';
 import JobLogin from './apps/job/views/Login';
@@ -27,7 +36,7 @@ import Maintenance from './apps/job/views/Maintenance';
 import ContactProfile from './apps/job/views/ContactProfile';
 
 // ====================================
-// 🛠️ Admin Workspace (ระบบหลังบ้าน)
+// 🛠️ Admin Workspace
 // ====================================
 import AdminLayout from './apps/job/layouts/AdminLayout';
 import Dashboard from './apps/job/views/admin/Dashboard';
@@ -47,9 +56,6 @@ import InternalLink from './apps/job/views/admin/InternalLink';
 import ResourceCenter from './apps/job/views/admin/ResourceCenter';
 import SheetData from './apps/job/views/admin/SheetData';
 
-// ====================================
-// 🛡️ Protected Route Wrapper
-// ====================================
 const ProtectedRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
@@ -59,22 +65,19 @@ const ProtectedRoute = ({ children }) => {
       setIsAuthenticated(!!session);
     };
     checkAuth();
-
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
     });
-
     return () => authListener.subscription.unsubscribe();
   }, []);
 
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfbfd] dark:bg-black">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 dark:border-zinc-800 border-t-[#0071e3] dark:border-t-[#0071e3]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 dark:border-zinc-800 border-t-[#0071e3]"></div>
       </div>
     );
   }
-
   return isAuthenticated ? children : <Navigate to="/sework/login" replace />;
 };
 
@@ -82,19 +85,28 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* 1. Public Routes */}
         <Route path="/" element={<LandingApp />} />
+        <Route path="/about" element={<AboutApp />} />
         <Route path="/portfolio" element={<PortfolioApp />} />
         <Route path="/showcase" element={<ShowcaseApp />} />
         <Route path="/roadmap" element={<RoadmapApp />} />
         <Route path="/guestbook" element={<GuestbookApp />} />
         <Route path="/support" element={<SupportApp />} />
-        
         <Route path="/links" element={<LandingLinks />} />
         <Route path="/pdpa" element={<PDPAPolicyLA />} />
         <Route path="/legal" element={<PDPAPolicyLA />} />
 
-        {/* 2. SE-Work Core Routes */}
+        {/* Coding Routes */}
+        <Route path="/code">
+          <Route index element={<CodingLanding />} /> 
+          <Route path="landing" element={<CodingLanding />} />
+          <Route path="login" element={<CodingLogin />} />
+          <Route path="register" element={<CodingRegister />} />
+          <Route path="workspace" element={<CodingWorkspace />} />
+          <Route path="workspace/:snippetId" element={<CodingWorkspace />} />
+        </Route>
+
+        {/* SE-Work Routes */}
         <Route path="/sework">
           <Route index element={<JobHome />} /> 
           <Route path="login" element={<JobLogin />} />
@@ -103,7 +115,6 @@ export default function App() {
           <Route path="maintenance" element={<Maintenance />} />
           <Route path="contact-profile" element={<ContactProfile />} />
 
-          {/* 3. SE-Work Admin Workspace */}
           <Route path="admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
@@ -125,7 +136,6 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* 4. 404 Error Page */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
