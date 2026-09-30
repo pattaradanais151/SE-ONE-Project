@@ -40,8 +40,14 @@ export default function ResourceCenter() {
     }
   };
 
+  // ✅ แก้ไข: เพิ่ม decodeURIComponent เพื่อแปลงชื่อไฟล์ภาษาไทยกลับมาให้แสดงผลได้ถูกต้อง
   const formatFileName = (fileName) => {
-    return fileName.replace(/_(\d{13})(?=\.\w+$)/, '');
+    try {
+      const decodedName = decodeURIComponent(fileName);
+      return decodedName.replace(/_(\d{13})(?=\.\w+$)/, '');
+    } catch (e) {
+      return fileName.replace(/_(\d{13})(?=\.\w+$)/, '');
+    }
   };
 
   // 🚀 ระบบยิงแจ้งเตือน Discord แบบแนบไฟล์ตรง
@@ -94,7 +100,8 @@ export default function ResourceCenter() {
       const baseName = lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
       const ext = lastDotIndex !== -1 ? originalName.substring(lastDotIndex) : '';
 
-      const safeBaseName = baseName.replace(/\s+/g, '-').replace(/[#?%&*{}\\/:<>+|"']/g, '');
+      // ✅ แก้ไข: ใช้ encodeURIComponent แปลงชื่อไฟล์ภาษาไทยเป็นรหัส ASCII ที่ Supabase รองรับ
+      const safeBaseName = encodeURIComponent(baseName.replace(/\s+/g, '-').replace(/[#?%&*{}\\/:<>+|"']/g, ''));
       const fileName = `${safeBaseName}_${Date.now()}${ext}`;
 
       // อัปโหลดเข้า Supabase
@@ -121,7 +128,7 @@ export default function ResourceCenter() {
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
       a.href = url;
-      a.download = formatFileName(fileName);
+      a.download = formatFileName(fileName); // ใช้ชื่อที่ถอดรหัสแล้ว
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(url);
@@ -154,6 +161,9 @@ export default function ResourceCenter() {
   };
 
   const getFileExtension = (filename) => {
+    try {
+      filename = decodeURIComponent(filename);
+    } catch (e) {}
     return filename.slice((Math.max(0, filename.lastIndexOf(".")) || Infinity) + 1).toUpperCase();
   };
 
