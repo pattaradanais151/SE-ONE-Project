@@ -62,7 +62,9 @@ export default function Login() {
     setErrorMessage('');
 
     try {
-      let loginEmail = username.trim();
+      // ✅ ตัดช่องว่างและแปลงเป็นตัวพิมพ์เล็กเสมอ เพื่อป้องกันปัญหา 400 Bad Request
+      let loginEmail = username.trim().toLowerCase();
+      
       // Auto-append email domain if not provided
       if (!loginEmail.includes('@')) {
         loginEmail = `${loginEmail}@se-rmutl.com`;
@@ -88,6 +90,7 @@ export default function Login() {
         return;
       }
 
+      // ตรวจสอบว่ากรอกข้อมูลครบหรือยัง ถ้ายังให้ไปหน้าตั้งค่าโปรไฟล์
       if (!profile?.first_name || !profile?.last_name || !profile?.phone) {
         navigate('/sework/contact-profile');
       } else {
@@ -99,7 +102,16 @@ export default function Login() {
       }
       
     } catch (error) {
-      setErrorMessage('อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
+      console.error("Login Error Details:", error);
+      
+      // ✅ แยกแยะ Error จาก Supabase ให้ผู้ใช้ทราบสาเหตุชัดเจน
+      if (error.message.includes('Email not confirmed')) {
+        setErrorMessage('ระบบแจ้งว่าท่านยังไม่ได้ยืนยันอีเมล กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ');
+      } else if (error.message.includes('Invalid login credentials')) {
+        setErrorMessage('อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
+      } else {
+        setErrorMessage(`เข้าสู่ระบบล้มเหลว: ${error.message}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -170,9 +182,9 @@ export default function Login() {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#0071e3] to-indigo-500"></div>
 
           {errorMessage && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-medium text-center flex items-center gap-3 animate__animated animate__headShake">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></div>
-              {errorMessage}
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-medium flex items-start gap-3 animate__animated animate__headShake">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5"></div>
+              <span className="text-left leading-relaxed">{errorMessage}</span>
             </div>
           )}
 

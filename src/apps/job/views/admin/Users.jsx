@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import { supabase } from '../../../../shared/lib/supabase';
 import { 
   Users as UsersIcon, Search, ShieldAlert, Ban, CheckCircle2, 
-  Settings2, X, Save, Edit2, ShieldCheck, Trash2
+  Settings2, X, Save, Edit2, ShieldCheck, Trash2, UserPlus
 } from 'lucide-react';
 import 'animate.css';
 
@@ -14,11 +14,27 @@ export default function Users() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   
-  // Modal States
+  // Edit Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState({ first_name: '', last_name: '', nickname: '', role: '' });
+
+  // Create User States
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    username: '',
+    password: '',
+    confirmPassword: '',
+    email: '',
+    facebook: '',
+    instagram: '',
+    phone: '',
+    first_name: '',
+    last_name: '',
+    nickname: ''
+  });
 
   const preventAction = (e) => e.preventDefault();
 
@@ -60,7 +76,7 @@ export default function Users() {
     if (!webhookUrl) return;
 
     try {
-      const color = logData.type === 'delete' ? 16711680 : logData.type === 'ban' ? 15158332 : 3447003; 
+      const color = logData.type === 'delete' ? 16711680 : logData.type === 'ban' ? 15158332 : logData.type === 'create' ? 3066993 : 3447003; 
       const adminName = userProfile?.first_name || 'Admin';
 
       const payload = {
@@ -68,7 +84,7 @@ export default function Users() {
           title: logData.actionTitle,
           color: color,
           fields: [
-            { name: "👤 บัญชีที่ถูกจัดการ", value: logData.targetName, inline: true },
+            { name: "👤 บัญชีที่ถูกจัดการ/สร้าง", value: logData.targetName, inline: true },
             { name: "รายละเอียด", value: logData.details, inline: true },
             { name: "👮 ผู้ทำรายการ", value: `${adminName} (${userProfile?.role || 'Unknown'})`, inline: false }
           ],
@@ -82,6 +98,67 @@ export default function Users() {
     }
   };
 
+  // ---------------- CREATE USER ---------------- //
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    if (createForm.password !== createForm.confirmPassword) {
+      alert('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!');
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      // จัดการอีเมล: ถ้าไม่ได้ใส่ @ ให้เติม @se-rmutl.com ไปเลย
+      const finalEmail = createForm.email.includes('@') 
+        ? createForm.email.trim() 
+        : `${createForm.email.trim()}@se-rmutl.com`;
+
+      // สมัครสมาชิกผ่าน Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: finalEmail,
+        password: createForm.password,
+        options: {
+          data: {
+            username: createForm.username,
+            first_name: createForm.first_name,
+            last_name: createForm.last_name,
+            nickname: createForm.nickname,
+            phone: createForm.phone,
+            facebook: createForm.facebook,
+            instagram: createForm.instagram,
+            role: 'User' // กำหนดให้สร้างเป็น User เสมอ
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      await sendDiscordLog({
+        actionTitle: "🆕 สร้างบัญชีผู้ใช้ใหม่ (โดย Super Admin)",
+        targetName: `${createForm.first_name} ${createForm.last_name}`,
+        details: `Email: ${finalEmail}\nUsername: ${createForm.username}`,
+        type: "create"
+      });
+
+      alert('สร้างบัญชีผู้ใช้งานสำเร็จ!');
+      setIsCreateModalOpen(false);
+      
+      // ล้างข้อมูลฟอร์ม
+      setCreateForm({
+        username: '', password: '', confirmPassword: '', email: '', 
+        facebook: '', instagram: '', phone: '', first_name: '', last_name: '', nickname: ''
+      });
+      
+      // ดึงข้อมูลใหม่
+      fetchUsers();
+    } catch (error) {
+      alert(`เกิดข้อผิดพลาดในการสร้างบัญชี: ${error.message}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // ---------------- MANAGE USER ---------------- //
   const openManageModal = (user) => {
     setSelectedUser(user);
     setForm({ 
@@ -191,9 +268,9 @@ export default function Users() {
     <div onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} className="animate__animated animate__fadeIn select-none font-sans pb-10">
       
       {/* Header */}
-      <div className="bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none transition-colors">
+      <div className="bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-6 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none transition-colors">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#0071e3]/10 rounded-2xl flex items-center justify-center text-[#0071e3] shadow-sm">
+          <div className="w-12 h-12 bg-[#0071e3]/10 rounded-2xl flex items-center justify-center text-[#0071e3] shadow-sm shrink-0">
             <UsersIcon className="w-6 h-6" />
           </div>
           <div>
@@ -201,13 +278,26 @@ export default function Users() {
             <p className="text-sm text-zinc-500">ดูข้อมูล แก้ไขสิทธิ์ และจัดการสถานะบัญชี</p>
           </div>
         </div>
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-          <input 
-            type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ค้นหาชื่อ, ชื่อเล่น, หรืออีเมล..." 
-            className="w-full bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-full pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#0071e3] transition-colors"
-          />
+        
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <input 
+              type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ค้นหาชื่อ, ชื่อเล่น, หรืออีเมล..." 
+              className="w-full bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-full pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#0071e3] transition-colors"
+            />
+          </div>
+          
+          {/* ปุ่มสำหรับ Super Admin ในการสร้าง User */}
+          {isSuperAdmin && (
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-sm font-bold rounded-full shadow-lg transition-all hover:scale-105 active:scale-95"
+            >
+              <UserPlus className="w-4 h-4" /> สร้างผู้ใช้งาน
+            </button>
+          )}
         </div>
       </div>
 
@@ -245,7 +335,7 @@ export default function Users() {
                         </td>
                         <td className="py-4 px-4">
                           <div className="font-bold text-zinc-900 dark:text-white">{user.first_name} {user.last_name}</div>
-                          <div className="text-[11px] font-mono opacity-70 mt-0.5">@{user.nickname || 'user'}</div>
+                          <div className="text-[11px] font-mono opacity-70 mt-0.5">@{user.username || user.nickname || 'user'}</div>
                         </td>
                         <td className="py-4 px-4">
                           <div className="text-xs text-zinc-500">{user.email || 'No email provided'}</div>
@@ -282,7 +372,88 @@ export default function Users() {
         )}
       </div>
 
-      {/* Modal จัดการผู้ใช้งาน */}
+      {/* Modal สร้างผู้ใช้งานใหม่ (Super Admin Only) */}
+      {isCreateModalOpen && isSuperAdmin && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate__animated animate__fadeIn animate__faster">
+          <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-[2rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate__animated animate__zoomIn animate__faster">
+            
+            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-[#121214]">
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-[#0071e3]" /> สร้างผู้ใช้งานใหม่
+              </h2>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-zinc-400 hover:text-white bg-white dark:bg-zinc-800 p-1.5 rounded-full transition-colors"><X className="w-5 h-5"/></button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto custom-scrollbar bg-white dark:bg-[#09090b]">
+              <form onSubmit={handleCreateUser} className="space-y-6">
+                
+                {/* 1. Account Info */}
+                <div className="p-5 bg-zinc-50 dark:bg-[#121214] rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+                  <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">ข้อมูลบัญชี (Account)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">Username</label>
+                      <input type="text" required value={createForm.username} onChange={e => setCreateForm({...createForm, username: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">Email <span className="font-normal opacity-70">(ไม่ต้องใส่ @se-rmutl.com ก็ได้)</span></label>
+                      <input type="text" required placeholder="เช่น somchai" value={createForm.email} onChange={e => setCreateForm({...createForm, email: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">รหัสผ่าน (Password)</label>
+                      <input type="password" required minLength="6" value={createForm.password} onChange={e => setCreateForm({...createForm, password: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">ยืนยันรหัสผ่าน (Confirm Password)</label>
+                      <input type="password" required minLength="6" value={createForm.confirmPassword} onChange={e => setCreateForm({...createForm, confirmPassword: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Personal Info */}
+                <div className="p-5 bg-zinc-50 dark:bg-[#121214] rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+                  <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">ข้อมูลส่วนตัว (Personal Info)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">ชื่อจริง (Name)</label>
+                      <input type="text" required value={createForm.first_name} onChange={e => setCreateForm({...createForm, first_name: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">นามสกุล (Surname)</label>
+                      <input type="text" required value={createForm.last_name} onChange={e => setCreateForm({...createForm, last_name: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">ชื่อเล่น (Nickname)</label>
+                      <input type="text" value={createForm.nickname} onChange={e => setCreateForm({...createForm, nickname: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">เบอร์โทรศัพท์ (Tel)</label>
+                      <input type="tel" value={createForm.phone} onChange={e => setCreateForm({...createForm, phone: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">Facebook</label>
+                      <input type="text" value={createForm.facebook} onChange={e => setCreateForm({...createForm, facebook: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-500 mb-1">Instagram</label>
+                      <input type="text" value={createForm.instagram} onChange={e => setCreateForm({...createForm, instagram: e.target.value})} className="w-full bg-white dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3] transition-colors" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 pb-4">
+                  <button type="submit" disabled={isCreating} className="w-full py-3.5 bg-[#0071e3] hover:bg-[#0077ED] text-white font-bold rounded-xl text-sm transition-all shadow-lg active:scale-95 disabled:opacity-50 flex justify-center items-center gap-2">
+                    {isCreating ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div> : <UserPlus className="w-5 h-5"/>}
+                    {isCreating ? 'กำลังประมวลผล...' : 'ยืนยันการสร้างบัญชีผู้ใช้งาน'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal จัดการผู้ใช้งาน (ของเดิม) */}
       {isModalOpen && selectedUser && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate__animated animate__fadeIn animate__faster">
           <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-[2rem] w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate__animated animate__zoomIn animate__faster">

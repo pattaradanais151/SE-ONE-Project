@@ -35,7 +35,7 @@ export default function ContactProfile() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-          navigate('/job/login');
+          navigate('/sework/login');
           return;
         }
         
@@ -122,7 +122,7 @@ export default function ContactProfile() {
       // ส่งแจ้งเตือน Discord เมื่อบันทึกสำเร็จ
       await sendDiscordNotification(formData);
 
-      navigate('/job'); // หรือไปหน้า Dashboard
+      navigate('/sework/admin/dashboard'); // หรือไปหน้า Dashboard
     } catch (error) {
       console.error(error);
       alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
