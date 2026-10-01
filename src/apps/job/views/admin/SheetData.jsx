@@ -124,7 +124,6 @@ export default function SheetData() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // 🚀 ระบบยิงแจ้งเตือน Discord แบบแนบไฟล์ตรง
   const sendDiscordSheetLog = async (action, title, subjectCode, type, externalLink = null, fileBlob = null, fileName = null) => {
     const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL;
     if (!webhookUrl) return;
@@ -156,7 +155,6 @@ export default function SheetData() {
       const formData = new FormData();
       formData.append('payload_json', JSON.stringify({ embeds: [embed] }));
       
-      // แนบไฟล์ไปให้โหลดจาก Discord ตรงๆ
       if (fileBlob && fileName) {
         formData.append('files[0]', fileBlob, fileName);
       }
@@ -178,13 +176,13 @@ export default function SheetData() {
 
       if (selectedFile) {
         const fileExt = selectedFile.name.split('.').pop();
-        const safeBaseName = selectedFile.name.split('.')[0].replace(/\s+/g, '-').replace(/[#?%&*{}\\/:<>+|"']/g, '');
-        const fileName = `sheet-${safeBaseName}-${Date.now()}.${fileExt}`;
+        // แก้ไข: ใช้ Timestamp + Random String เป็นชื่อไฟล์เพื่อหลีกเลี่ยงภาษาไทยที่ทำให้เกิด 400 Bad Request[cite: 3]
+        const safeFileName = `sheet-${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
         
-        const { error: uploadError } = await supabase.storage.from('resources').upload(fileName, selectedFile);
+        const { error: uploadError } = await supabase.storage.from('resources').upload(safeFileName, selectedFile);
         if (uploadError) throw uploadError;
         
-        const { data: { publicUrl } } = supabase.storage.from('resources').getPublicUrl(fileName);
+        const { data: { publicUrl } } = supabase.storage.from('resources').getPublicUrl(safeFileName);
         uploadedUrl = publicUrl;
       }
 
@@ -222,7 +220,6 @@ export default function SheetData() {
       
       await supabase.from('sheet_data').delete().eq('id', sheet.id);
       
-      // ส่งแจ้งเตือนการลบ (ไม่ต้องแนบไฟล์)
       await sendDiscordSheetLog('ลบ', sheet.title, sheet.subjects?.code, sheet.type);
       setSheets(sheets.filter(s => s.id !== sheet.id));
       
