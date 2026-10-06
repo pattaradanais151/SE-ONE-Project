@@ -41,7 +41,7 @@
 
     <!-- 6. PWA & Apple iOS Support -->
     <meta name="application-name" content="SE Workspace" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SE Workspace" />
     <link rel="apple-touch-icon" href="/logo.png" />
@@ -80,8 +80,8 @@
         transition: opacity 0.5s ease-out;
       }
       .loader-logo {
-        width: 60px;
-        height: 60px;
+        width: 64px;
+        height: 64px;
         margin-bottom: 24px;
         border-radius: 16px;
         background-color: #121214;
@@ -89,8 +89,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 8px; /* เพิ่มพื้นที่รอบรูปโลโก้ */
         box-shadow: 0 0 30px rgba(0, 113, 227, 0.2);
         animation: pulseLogo 2s infinite;
+        overflow: hidden;
+      }
+      .loader-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* รักษาอัตราส่วนรูปภาพไม่ให้เบี้ยว */
       }
       .loader-spinner {
         width: 32px;
@@ -131,8 +138,7 @@
     <!-- Initial Loading Screen -->
     <div id="initial-loader">
       <div class="loader-logo">
-        <!-- ใส่ Path รูป Logo จริงแทนตัวอักษรได้ถ้ามี -->
-        <span style="color:#fff; font-family:monospace; font-weight:bold; font-size:14px;">SE</span>
+        <img src="/logo.png" alt="SE Logo" />
       </div>
       <div class="loader-spinner"></div>
       <div class="loader-text">INITIALIZING SYSTEM...</div>
@@ -155,7 +161,7 @@
       });
     </script>
     
-    <!-- Instant.page: Preload หน้าล่วงหน้าเมื่อนำเมาส์ไปชี้ลิงก์ (แก้ Hash ให้ถูกต้องแล้ว) -->
+    <!-- Instant.page: Preload หน้าล่วงหน้าเมื่อนำเมาส์ไปชี้ลิงก์ -->
     <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMBh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" crossorigin="anonymous"></script>
   </body>
 </html>
