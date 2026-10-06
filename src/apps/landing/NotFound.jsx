@@ -1,7 +1,9 @@
+// src/apps/landing/NotFound.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { css, keyframes } from '@emotion/css';
 import { Home } from 'lucide-react';
+import SEO from '../../components/seo/SEO';
 import 'animate.css';
 
 // ==========================================
@@ -106,56 +108,63 @@ export default function NotFound() {
   ];
 
   return (
-    <div 
-      onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} onDragStart={preventAction} onSelectStart={preventAction}
-      className="min-h-screen w-full flex flex-col items-center justify-center bg-[#fbfbfd] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] font-sans p-6 relative overflow-hidden transition-colors duration-500 select-none"
-    >
-      <div className="relative z-10 flex flex-col items-center text-center animate__animated animate__fadeIn max-w-3xl w-full">
-        
-        <h2 className="text-lg sm:text-2xl font-semibold mb-16 sm:mb-20 text-zinc-500 dark:text-zinc-400 tracking-wide">
-          The page you were looking for doesn't exist.
-        </h2>
-
-        <div className="relative w-full flex flex-col items-center justify-center mb-20 sm:mb-24">
+    <>
+      <SEO 
+        title="404 Not Found" 
+        description="The page you were looking for doesn't exist."
+        url="/404"
+      />
+      <div 
+        onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} onDragStart={preventAction} onSelectStart={preventAction}
+        className="min-h-screen w-full flex flex-col items-center justify-center bg-[#fbfbfd] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] font-sans p-6 relative overflow-hidden transition-colors duration-500 select-none"
+      >
+        <div className="relative z-10 flex flex-col items-center text-center animate__animated animate__fadeIn max-w-3xl w-full">
           
-          {/* Particles (Glitch Cubes) */}
-          {particles.map((p, index) => (
-            <div 
-              key={index}
-              className={`absolute rounded-full ${p.color} ${p.size}`}
-              style={{
-                top: p.top,
-                left: p.left,
-                animation: `${p.anim} 4s ease-in-out infinite`,
-                animationDelay: p.delay
-              }}
-            ></div>
-          ))}
+          <h2 className="text-lg sm:text-2xl font-semibold mb-16 sm:mb-20 text-zinc-500 dark:text-zinc-400 tracking-wide">
+            The page you were looking for doesn't exist.
+          </h2>
 
-          <div className="font-black text-xl sm:text-2xl tracking-[0.4em] sm:tracking-[0.6em] uppercase mb-4 text-[#1d1d1f] dark:text-white ml-3">
-            Error
+          <div className="relative w-full flex flex-col items-center justify-center mb-20 sm:mb-24">
+            
+            {/* Particles (Glitch Cubes) */}
+            {particles.map((p, index) => (
+              <div 
+                key={index}
+                className={`absolute rounded-full ${p.color} ${p.size}`}
+                style={{
+                  top: p.top,
+                  left: p.left,
+                  animation: `${p.anim} 4s ease-in-out infinite`,
+                  animationDelay: p.delay
+                }}
+              ></div>
+            ))}
+
+            <div className="font-black text-xl sm:text-2xl tracking-[0.4em] sm:tracking-[0.6em] uppercase mb-4 text-[#1d1d1f] dark:text-white ml-3">
+              Error
+            </div>
+
+            <h1 
+              className={`text-[7rem] sm:text-[11rem] md:text-[13rem] font-black leading-none italic tracking-tighter text-[#1d1d1f] dark:text-[#f5f5f7] select-none ${glitchTextClass}`}
+              data-text="404"
+            >
+              404
+            </h1>
+
+            <div className="font-black text-sm sm:text-xl tracking-[0.3em] sm:tracking-[0.4em] uppercase mt-4 text-[#1d1d1f] dark:text-white ml-2">
+              Page Not Found
+            </div>
           </div>
 
-          <h1 
-            className={`text-[7rem] sm:text-[11rem] md:text-[13rem] font-black leading-none italic tracking-tighter text-[#1d1d1f] dark:text-[#f5f5f7] select-none ${glitchTextClass}`}
-            data-text="404"
+          <button 
+            onClick={() => navigate('/')}
+            className={`flex items-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full text-sm sm:text-base font-bold tracking-wider uppercase shadow-lg shadow-blue-500/20 active:scale-95 ${hoverGlow}`}
           >
-            404
-          </h1>
+            <Home className="w-5 h-5"/> กลับสู่หน้าหลัก
+          </button>
 
-          <div className="font-black text-sm sm:text-xl tracking-[0.3em] sm:tracking-[0.4em] uppercase mt-4 text-[#1d1d1f] dark:text-white ml-2">
-            Page Not Found
-          </div>
         </div>
-
-        <button 
-          onClick={() => navigate('/')}
-          className={`flex items-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-full text-sm sm:text-base font-bold tracking-wider uppercase shadow-lg shadow-blue-500/20 active:scale-95 ${hoverGlow}`}
-        >
-          <Home className="w-5 h-5"/> กลับสู่หน้าหลัก
-        </button>
-
       </div>
-    </div>
+    </>
   );
 }

@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import { supabase } from '../../../../shared/lib/supabase';
 import { 
   Users as UsersIcon, Search, ShieldAlert, Ban, CheckCircle2, 
-  Settings2, X, Save, Edit2, ShieldCheck, Trash2, UserPlus
+  Settings2, X, Save, Edit2, ShieldCheck, Trash2, UserPlus, Lock, KeyRound, Loader2, AlertCircle
 } from 'lucide-react';
 import 'animate.css';
 
@@ -14,26 +14,26 @@ export default function Users() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   
+  // Custom Toast State
+  const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
+  
   // Edit Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState({ first_name: '', last_name: '', nickname: '', role: '' });
+  
+  // Reset Password State (Inside Manage Modal)
+  const [isResettingPwd, setIsResettingPwd] = useState(false);
+  const [showResetPwdFields, setShowResetPwdFields] = useState(false);
+  const [resetPwdForm, setResetPwdForm] = useState({ newPassword: '', confirmPassword: '' });
 
   // Create User States
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    facebook: '',
-    instagram: '',
-    phone: '',
-    first_name: '',
-    last_name: '',
-    nickname: ''
+    username: '', password: '', confirmPassword: '', email: '', 
+    facebook: '', instagram: '', phone: '', first_name: '', last_name: '', nickname: ''
   });
 
   const preventAction = (e) => e.preventDefault();
@@ -41,31 +41,38 @@ export default function Users() {
   const isSuperAdmin = useMemo(() => userProfile?.role === 'Super Admin', [userProfile]);
   const isAdmin = useMemo(() => userProfile?.role === 'Admin', [userProfile]);
 
-  // ฟังก์ชันตรวจสอบสิทธิ์การจัดการบัญชีเป้าหมาย
   const canManage = (targetUser) => {
-    if (isSuperAdmin) return true; // Super Admin ทำได้ทุกอย่าง
-    if (isAdmin && targetUser.role === 'User') return true; // Admin ทำได้เฉพาะกับ User
-    return false; // นอกนั้นห้ามทำ
+    if (isSuperAdmin) return true; 
+    if (isAdmin && targetUser.role === 'User') return true; 
+    return false; 
   };
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // Function for displaying toast
+  const showToast = (message, type = 'error') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: 'error' });
+    }, 5000);
+  };
+
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      // ดึงทุกคนในระบบ
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .order('role', { ascending: false }) // เรียงสิทธิ์ก่อน
+        .order('role', { ascending: false }) 
         .order('first_name', { ascending: true });
 
       if (error) throw error;
       setUsersList(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
+      showToast('เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้งาน');
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +83,7 @@ export default function Users() {
     if (!webhookUrl) return;
 
     try {
-      const color = logData.type === 'delete' ? 16711680 : logData.type === 'ban' ? 15158332 : logData.type === 'create' ? 3066993 : 3447003; 
+      const color = logData.type === 'delete' ? 16711680 : logData.type === 'ban' ? 15158332 : logData.type === 'create' ? 3066993 : logData.type === 'pwd_reset' ? 3447003 : 16753920; 
       const adminName = userProfile?.first_name || 'Admin';
 
       const payload = {
@@ -84,8 +91,8 @@ export default function Users() {
           title: logData.actionTitle,
           color: color,
           fields: [
-            { name: "👤 บัญชีที่ถูกจัดการ/สร้าง", value: logData.targetName, inline: true },
-            { name: "รายละเอียด", value: logData.details, inline: true },
+            { name: "👤 บัญชีเป้าหมาย", value: logData.targetName, inline: true },
+            { name: "📝 รายละเอียด", value: logData.details, inline: true },
             { name: "👮 ผู้ทำรายการ", value: `${adminName} (${userProfile?.role || 'Unknown'})`, inline: false }
           ],
           timestamp: new Date().toISOString()
@@ -102,18 +109,16 @@ export default function Users() {
   const handleCreateUser = async (e) => {
     e.preventDefault();
     if (createForm.password !== createForm.confirmPassword) {
-      alert('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!');
+      showToast('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!');
       return;
     }
 
     setIsCreating(true);
     try {
-      // จัดการอีเมล: ถ้าไม่ได้ใส่ @ ให้เติม @se-rmutl.com ไปเลย
       const finalEmail = createForm.email.includes('@') 
         ? createForm.email.trim() 
         : `${createForm.email.trim()}@se-rmutl.com`;
 
-      // สมัครสมาชิกผ่าน Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: finalEmail,
         password: createForm.password,
@@ -126,7 +131,7 @@ export default function Users() {
             phone: createForm.phone,
             facebook: createForm.facebook,
             instagram: createForm.instagram,
-            role: 'User' // กำหนดให้สร้างเป็น User เสมอ
+            role: 'User' 
           }
         }
       });
@@ -134,25 +139,23 @@ export default function Users() {
       if (error) throw error;
 
       await sendDiscordLog({
-        actionTitle: "🆕 สร้างบัญชีผู้ใช้ใหม่ (โดย Super Admin)",
+        actionTitle: "🆕 สร้างบัญชีผู้ใช้ใหม่ (โดย Admin)",
         targetName: `${createForm.first_name} ${createForm.last_name}`,
         details: `Email: ${finalEmail}\nUsername: ${createForm.username}`,
         type: "create"
       });
 
-      alert('สร้างบัญชีผู้ใช้งานสำเร็จ!');
+      showToast('สร้างบัญชีผู้ใช้งานสำเร็จ!', 'success');
       setIsCreateModalOpen(false);
       
-      // ล้างข้อมูลฟอร์ม
       setCreateForm({
         username: '', password: '', confirmPassword: '', email: '', 
         facebook: '', instagram: '', phone: '', first_name: '', last_name: '', nickname: ''
       });
       
-      // ดึงข้อมูลใหม่
       fetchUsers();
     } catch (error) {
-      alert(`เกิดข้อผิดพลาดในการสร้างบัญชี: ${error.message}`);
+      showToast(`เกิดข้อผิดพลาดในการสร้างบัญชี: ${error.message}`);
     } finally {
       setIsCreating(false);
     }
@@ -167,6 +170,8 @@ export default function Users() {
       nickname: user.nickname || '', 
       role: user.role || 'User' 
     });
+    setResetPwdForm({ newPassword: '', confirmPassword: '' });
+    setShowResetPwdFields(false);
     setIsModalOpen(true);
     document.body.style.overflow = 'hidden';
   };
@@ -174,6 +179,7 @@ export default function Users() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
+    setShowResetPwdFields(false);
     document.body.style.overflow = 'auto';
   };
 
@@ -194,11 +200,60 @@ export default function Users() {
       });
 
       closeModal();
-      alert('บันทึกการแก้ไขเรียบร้อยแล้ว');
+      showToast('บันทึกการแก้ไขเรียบร้อยแล้ว', 'success');
     } catch (error) {
-      alert(`เกิดข้อผิดพลาด: ${error.message}`);
+      showToast(`เกิดข้อผิดพลาด: ${error.message}`);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // ---------------- RESET PASSWORD (ADMIN ACTION) ---------------- //
+  const handleAdminResetPassword = async (e) => {
+    e.preventDefault();
+    
+    if (resetPwdForm.newPassword !== resetPwdForm.confirmPassword) {
+      return showToast('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
+    }
+    
+    if (resetPwdForm.newPassword.length < 6) {
+      return showToast('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+    }
+
+    if (!window.confirm(`คุณแน่ใจหรือไม่ที่จะทำการเปลี่ยนรหัสผ่านใหม่ให้กับบัญชี ${selectedUser.first_name}?`)) return;
+
+    setIsResettingPwd(true);
+    try {
+      // เรียกใช้ API Route ที่อยู่บน Cloudflare Pages
+      const response = await fetch('/api/reset-password', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId: selectedUser.id, 
+          newPassword: resetPwdForm.newPassword 
+        })
+      });
+      
+      if (!response.ok) {
+         const errData = await response.json().catch(()=>({}));
+         throw new Error(errData.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+      }
+
+      await sendDiscordLog({
+        actionTitle: "🔑 บังคับเปลี่ยนรหัสผ่านผู้ใช้งาน (Admin Override)",
+        targetName: `${selectedUser.first_name} ${selectedUser.last_name}`,
+        details: `แอดมินทำการตั้งค่ารหัสผ่านใหม่ให้ผู้ใช้`,
+        type: "pwd_reset"
+      });
+
+      showToast(`เปลี่ยนรหัสผ่านให้ ${selectedUser.first_name} สำเร็จ!`, 'success');
+      setShowResetPwdFields(false);
+      setResetPwdForm({ newPassword: '', confirmPassword: '' });
+      
+    } catch (error) {
+      showToast(`เกิดข้อผิดพลาด: ${error.message}`);
+    } finally {
+      setIsResettingPwd(false);
     }
   };
 
@@ -206,7 +261,7 @@ export default function Users() {
     const isCurrentlyBanned = isBanned(selectedUser.is_banned_until);
     const confirmMsg = isCurrentlyBanned 
       ? `ต้องการปลดระงับบัญชีของ ${selectedUser.first_name} หรือไม่?` 
-      : `⚠️ ต้องการระงับบัญชีของ ${selectedUser.first_name} หรือไม่?`;
+      : `⚠️️ ต้องการระงับบัญชีของ ${selectedUser.first_name} หรือไม่?`;
       
     if (!window.confirm(confirmMsg)) return;
 
@@ -225,8 +280,9 @@ export default function Users() {
         type: "ban"
       });
 
+      showToast(isCurrentlyBanned ? 'ปลดแบนเรียบร้อยแล้ว' : 'ระงับบัญชีเรียบร้อยแล้ว', 'success');
     } catch (error) {
-      alert(`เกิดข้อผิดพลาด: ${error.message}`);
+      showToast(`เกิดข้อผิดพลาด: ${error.message}`);
     }
   };
 
@@ -246,8 +302,9 @@ export default function Users() {
 
       setUsersList(usersList.filter(u => u.id !== selectedUser.id));
       closeModal();
+      showToast('ลบบัญชีผู้ใช้ถาวรเรียบร้อยแล้ว', 'success');
     } catch (error) {
-      alert(`เกิดข้อผิดพลาด: ${error.message}`);
+      showToast(`เกิดข้อผิดพลาด: ${error.message}`);
     }
   };
 
@@ -265,8 +322,28 @@ export default function Users() {
   }, [usersList, searchQuery]);
 
   return (
-    <div onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} className="animate__animated animate__fadeIn select-none font-sans pb-10">
+    <div onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} className="animate__animated animate__fadeIn select-none font-sans pb-10 relative">
       
+      {/* Toast Notification */}
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[110] w-full max-w-md px-4 pointer-events-none flex flex-col items-center">
+        {toast.show && (
+          <div className={`animate__animated animate__fadeInDown animate__faster w-full flex items-start gap-3 p-4 rounded-2xl shadow-xl pointer-events-auto border backdrop-blur-md
+            ${toast.type === 'error' ? 'bg-red-50/95 dark:bg-red-950/90 border-red-200 dark:border-red-900 text-red-800 dark:text-red-200' : 
+              'bg-emerald-50/95 dark:bg-emerald-950/90 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200'}`}
+          >
+            <div className="shrink-0 mt-0.5">
+              {toast.type === 'error' ? <AlertCircle className="w-5 h-5 text-red-500" /> : <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+            </div>
+            <div className="flex-1 text-sm font-medium leading-snug">
+              {toast.message}
+            </div>
+            <button onClick={() => setToast({ show: false, message: '', type: 'error' })} className="shrink-0 text-current opacity-60 hover:opacity-100 transition-opacity">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Header */}
       <div className="bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-6 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none transition-colors">
         <div className="flex items-center gap-4">
@@ -289,7 +366,6 @@ export default function Users() {
             />
           </div>
           
-          {/* ปุ่มสำหรับ Super Admin ในการสร้าง User */}
           {isSuperAdmin && (
             <button 
               onClick={() => setIsCreateModalOpen(true)}
@@ -372,12 +448,137 @@ export default function Users() {
         )}
       </div>
 
-      {/* Modal สร้างผู้ใช้งานใหม่ (Super Admin Only) */}
+      {/* Modal จัดการผู้ใช้งาน */}
+      {isModalOpen && selectedUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate__animated animate__fadeIn animate__faster" onClick={closeModal}>
+          <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-[2rem] w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate__animated animate__zoomIn animate__faster" onClick={e=>e.stopPropagation()}>
+            
+            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-[#121214] shrink-0">
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[#0071e3]" /> จัดการบัญชี
+              </h2>
+              <button onClick={closeModal} className="text-zinc-400 hover:text-white bg-white dark:bg-zinc-800 p-1.5 rounded-full"><X className="w-5 h-5"/></button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto custom-scrollbar bg-white dark:bg-[#09090b]">
+              
+              <div className="flex items-center gap-4 mb-6 p-4 bg-zinc-50 dark:bg-[#121214] rounded-xl border border-zinc-200 dark:border-zinc-800">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
+                  {selectedUser.avatar_url ? <img src={selectedUser.avatar_url} className="w-full h-full object-cover"/> : selectedUser.first_name?.charAt(0) || 'U'}
+                </div>
+                <div className="overflow-hidden w-full">
+                  <h3 className="font-bold text-zinc-900 dark:text-white truncate">{selectedUser.email}</h3>
+                  <p className="text-[10px] text-zinc-500 font-mono truncate">ID: {selectedUser.id}</p>
+                </div>
+              </div>
+
+              {/* Form อัปเดตข้อมูล */}
+              <form onSubmit={saveUserData} className="space-y-4 mb-8 pb-8 border-b border-zinc-200 dark:border-zinc-800/80">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-500 mb-1">ชื่อจริง</label>
+                    <input type="text" required value={form.first_name} onChange={e => setForm({...form, first_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-500 mb-1">นามสกุล</label>
+                    <input type="text" required value={form.last_name} onChange={e => setForm({...form, last_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-500 mb-1">ชื่อเล่น</label>
+                  <input type="text" value={form.nickname} onChange={e => setForm({...form, nickname: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-500 mb-1">ระดับสิทธิ์ (Role)</label>
+                  <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]">
+                    <option value="User">User (นักศึกษา)</option>
+                    <option value="Admin">Admin (แอดมิน)</option>
+                    {isSuperAdmin && <option value="Super Admin">Super Admin (ผู้ดูแลระบบสูงสุด)</option>}
+                  </select>
+                </div>
+
+                <div className="pt-2">
+                  <button type="submit" disabled={isSaving} className="w-full py-2.5 bg-[#0071e3] hover:bg-[#0077ED] text-white font-bold rounded-xl text-sm transition-all shadow-md active:scale-95 disabled:opacity-50">
+                    {isSaving ? 'กำลังบันทึก...' : 'บันทึกการแก้ไขข้อมูล'}
+                  </button>
+                </div>
+              </form>
+
+              {/* ---------------- RESET PASSWORD SECTION ---------------- */}
+              <div className="mb-8">
+                {!showResetPwdFields ? (
+                  <button 
+                    onClick={() => setShowResetPwdFields(true)}
+                    className="w-full py-2.5 px-4 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#1e1e24] dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl text-sm transition-colors flex items-center justify-center gap-2 border border-zinc-200 dark:border-zinc-700"
+                  >
+                    <KeyRound className="w-4 h-4" /> บังคับตั้งรหัสผ่านใหม่ (Admin Override)
+                  </button>
+                ) : (
+                  <form onSubmit={handleAdminResetPassword} className="p-5 rounded-2xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/50 space-y-4 animate__animated animate__fadeIn">
+                    <h3 className="text-sm font-bold text-orange-600 dark:text-orange-500 flex items-center gap-2">
+                      <Lock className="w-4 h-4" /> เปลี่ยนรหัสผ่านให้ผู้ใช้นี้
+                    </h3>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <input 
+                          type="text" required placeholder="รหัสผ่านใหม่ (ขั้นต่ำ 6 ตัวอักษร)"
+                          value={resetPwdForm.newPassword} onChange={e => setResetPwdForm({...resetPwdForm, newPassword: e.target.value})}
+                          className="w-full bg-white dark:bg-black border border-orange-200 dark:border-orange-900/50 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-orange-500"
+                        />
+                      </div>
+                      <div>
+                        <input 
+                          type="text" required placeholder="ยืนยันรหัสผ่านใหม่"
+                          value={resetPwdForm.confirmPassword} onChange={e => setResetPwdForm({...resetPwdForm, confirmPassword: e.target.value})}
+                          className="w-full bg-white dark:bg-black border border-orange-200 dark:border-orange-900/50 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-orange-500"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2 pt-2">
+                      <button type="button" onClick={() => setShowResetPwdFields(false)} className="px-4 py-2 bg-white dark:bg-black text-zinc-500 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-bold transition-colors">
+                        ยกเลิก
+                      </button>
+                      <button type="submit" disabled={isResettingPwd} className="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm">
+                        {isResettingPwd ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>} 
+                        ยืนยันเปลี่ยนรหัสผ่าน
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+
+              {/* ---------------- ACTION ZONE FOR BAN & DELETE ---------------- */}
+              <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800 grid grid-cols-2 gap-3">
+                <button 
+                  onClick={toggleBanStatus}
+                  className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${isBanned(selectedUser.is_banned_until) ? 'bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300' : 'bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/40 text-orange-600 dark:text-orange-500 border border-orange-200 dark:border-orange-900/50'}`}
+                >
+                  {isBanned(selectedUser.is_banned_until) ? <><CheckCircle2 className="w-4 h-4"/> ปลดระงับบัญชี</> : <><Ban className="w-4 h-4"/> ระงับบัญชี (Ban)</>}
+                </button>
+
+                <button 
+                  onClick={deleteAccount}
+                  className="py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-500 border border-red-200 dark:border-red-900/50 transition-all"
+                >
+                  <Trash2 className="w-4 h-4"/> ลบบัญชีผู้ใช้ถาวร
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal สร้างผู้ใช้งานใหม่ (Super Admin Only) (ส่วนนี้เหมือนเดิม) */}
       {isCreateModalOpen && isSuperAdmin && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate__animated animate__fadeIn animate__faster">
           <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-[2rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate__animated animate__zoomIn animate__faster">
             
-            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-[#121214]">
+            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-[#121214] shrink-0">
               <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-[#0071e3]" /> สร้างผู้ใช้งานใหม่
               </h2>
@@ -448,84 +649,6 @@ export default function Users() {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal จัดการผู้ใช้งาน (ของเดิม) */}
-      {isModalOpen && selectedUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate__animated animate__fadeIn animate__faster">
-          <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-[2rem] w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate__animated animate__zoomIn animate__faster">
-            
-            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-[#121214]">
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#0071e3]" /> จัดการบัญชี
-              </h2>
-              <button onClick={closeModal} className="text-zinc-400 hover:text-white bg-white dark:bg-zinc-800 p-1.5 rounded-full"><X className="w-5 h-5"/></button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto custom-scrollbar bg-white dark:bg-[#09090b]">
-              <div className="flex items-center gap-4 mb-6 p-4 bg-zinc-50 dark:bg-[#121214] rounded-xl border border-zinc-200 dark:border-zinc-800">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
-                  {selectedUser.avatar_url ? <img src={selectedUser.avatar_url} className="w-full h-full object-cover"/> : selectedUser.first_name?.charAt(0) || 'U'}
-                </div>
-                <div>
-                  <h3 className="font-bold text-zinc-900 dark:text-white">{selectedUser.email}</h3>
-                  <p className="text-xs text-zinc-500">ID: {selectedUser.id}</p>
-                </div>
-              </div>
-
-              <form onSubmit={saveUserData} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-500 mb-1">ชื่อจริง</label>
-                    <input type="text" required value={form.first_name} onChange={e => setForm({...form, first_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-500 mb-1">นามสกุล</label>
-                    <input type="text" required value={form.last_name} onChange={e => setForm({...form, last_name: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-zinc-500 mb-1">ชื่อเล่น</label>
-                  <input type="text" value={form.nickname} onChange={e => setForm({...form, nickname: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]" />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-zinc-500 mb-1">ระดับสิทธิ์ (Role)</label>
-                  <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} className="w-full bg-zinc-50 dark:bg-[#1e1e24] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-[#0071e3]">
-                    <option value="User">User (นักศึกษา)</option>
-                    <option value="Admin">Admin (แอดมิน)</option>
-                    {isSuperAdmin && <option value="Super Admin">Super Admin (ผู้ดูแลระบบสูงสุด)</option>}
-                  </select>
-                </div>
-
-                <div className="pt-2">
-                  <button type="submit" disabled={isSaving} className="w-full py-2.5 bg-[#0071e3] hover:bg-[#0077ED] text-white font-bold rounded-xl text-sm transition-all shadow-md active:scale-95 disabled:opacity-50">
-                    {isSaving ? 'กำลังบันทึก...' : 'บันทึกการแก้ไขข้อมูล'}
-                  </button>
-                </div>
-              </form>
-
-              {/* Action Zone for Ban & Delete */}
-              <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-800 grid grid-cols-2 gap-3">
-                <button 
-                  onClick={toggleBanStatus}
-                  className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${isBanned(selectedUser.is_banned_until) ? 'bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300' : 'bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/40 text-orange-600 dark:text-orange-500 border border-orange-200 dark:border-orange-900/50'}`}
-                >
-                  {isBanned(selectedUser.is_banned_until) ? <><CheckCircle2 className="w-4 h-4"/> ปลดระงับบัญชี</> : <><Ban className="w-4 h-4"/> ระงับบัญชี (Ban)</>}
-                </button>
-
-                <button 
-                  onClick={deleteAccount}
-                  className="py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-500 border border-red-200 dark:border-red-900/50 transition-all"
-                >
-                  <Trash2 className="w-4 h-4"/> ลบบัญชีผู้ใช้ถาวร
-                </button>
-              </div>
-
             </div>
           </div>
         </div>

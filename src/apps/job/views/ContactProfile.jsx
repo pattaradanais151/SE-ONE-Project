@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../shared/lib/supabase';
 import { Sun, Moon, CheckCircle2, User, Phone, Instagram, Facebook } from 'lucide-react';
+import SEO from '../../../components/seo/SEO';
 import 'animate.css';
 
 export default function ContactProfile() {
@@ -140,109 +141,116 @@ export default function ContactProfile() {
   }
 
   return (
-    <div 
-      onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} onDragStart={preventAction} onSelectStart={preventAction}
-      className="min-h-screen flex flex-col items-center justify-center bg-[#fbfbfd] dark:bg-black p-4 relative transition-colors duration-500 font-sans select-none"
-    >
-      {/* Theme Toggle */}
-      <div className="absolute top-6 right-6 animate__animated animate__fadeInDown">
-        <button 
-          onClick={() => setIsDark(!isDark)} 
-          className="p-2.5 rounded-full border border-gray-200 dark:border-zinc-800 bg-white/50 dark:bg-[#121214]/50 backdrop-blur-md shadow-sm hover:scale-110 active:scale-95 transition-all text-zinc-500 dark:text-zinc-400"
-        >
-          {isDark ? <Sun className="w-4 h-4 text-zinc-300" /> : <Moon className="w-4 h-4 text-zinc-600" />}
-        </button>
-      </div>
-
-      <div className="bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 w-full max-w-2xl rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] animate__animated animate__fadeInUp">
-        
-        <div className="text-center mb-10">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-zinc-900 dark:text-white tracking-tight">อัปเดตข้อมูลการติดต่อ</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">จำเป็นต้องกรอกข้อมูลให้ครบถ้วนก่อนเข้าใช้งานระบบ</p>
+    <>
+      <SEO 
+        title="Update Contact Profile | SE-Job" 
+        description="อัปเดตข้อมูลการติดต่อส่วนตัวเพื่อเข้าใช้งานระบบ SE-Job"
+        url="/sework/contact-profile"
+      />
+      <div 
+        onContextMenu={preventAction} onCopy={preventAction} onCut={preventAction} onDragStart={preventAction} onSelectStart={preventAction}
+        className="min-h-screen flex flex-col items-center justify-center bg-[#fbfbfd] dark:bg-black p-4 relative transition-colors duration-500 font-sans select-none"
+      >
+        {/* Theme Toggle */}
+        <div className="absolute top-6 right-6 animate__animated animate__fadeInDown">
+          <button 
+            onClick={() => setIsDark(!isDark)} 
+            className="p-2.5 rounded-full border border-gray-200 dark:border-zinc-800 bg-white/50 dark:bg-[#121214]/50 backdrop-blur-md shadow-sm hover:scale-110 active:scale-95 transition-all text-zinc-500 dark:text-zinc-400"
+          >
+            {isDark ? <Sun className="w-4 h-4 text-zinc-300" /> : <Moon className="w-4 h-4 text-zinc-600" />}
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><User className="inline w-4 h-4 mr-1"/> ชื่อจริง *</label>
-              <input 
-                type="text" required value={formData.first_name} 
-                onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">นามสกุล *</label>
-              <input 
-                type="text" required value={formData.last_name} 
-                onChange={(e) => setFormData({...formData, last_name: e.target.value})}
-                className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
-              />
-            </div>
+        <div className="bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 w-full max-w-2xl rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] animate__animated animate__fadeInUp">
+          
+          <div className="text-center mb-10">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-zinc-900 dark:text-white tracking-tight">อัปเดตข้อมูลการติดต่อ</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">จำเป็นต้องกรอกข้อมูลให้ครบถ้วนก่อนเข้าใช้งานระบบ</p>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">ชื่อเล่น</label>
-            <input 
-              type="text" value={formData.nickname} 
-              onChange={(e) => setFormData({...formData, nickname: e.target.value})}
-              className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><User className="inline w-4 h-4 mr-1"/> ชื่อจริง *</label>
+                <input 
+                  type="text" required value={formData.first_name} 
+                  onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                  className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">นามสกุล *</label>
+                <input 
+                  type="text" required value={formData.last_name} 
+                  onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                  className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
+                />
+              </div>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><Instagram className="inline w-4 h-4 mr-1 text-pink-500"/> Instagram</label>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">ชื่อเล่น</label>
               <input 
-                type="text" value={formData.instagram} 
-                onChange={(e) => setFormData({...formData, instagram: e.target.value})}
+                type="text" value={formData.nickname} 
+                onChange={(e) => setFormData({...formData, nickname: e.target.value})}
                 className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
               />
             </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><Facebook className="inline w-4 h-4 mr-1 text-blue-500"/> Facebook</label>
-              <input 
-                type="text" value={formData.facebook} 
-                onChange={(e) => setFormData({...formData, facebook: e.target.value})}
-                className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><Phone className="inline w-4 h-4 mr-1"/> เบอร์โทรศัพท์ *</label>
-              <input 
-                type="text" required value={formData.phone} 
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><Instagram className="inline w-4 h-4 mr-1 text-pink-500"/> Instagram</label>
+                <input 
+                  type="text" value={formData.instagram} 
+                  onChange={(e) => setFormData({...formData, instagram: e.target.value})}
+                  className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><Facebook className="inline w-4 h-4 mr-1 text-blue-500"/> Facebook</label>
+                <input 
+                  type="text" value={formData.facebook} 
+                  onChange={(e) => setFormData({...formData, facebook: e.target.value})}
+                  className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">อีเมล (ห้ามแก้ไข)</label>
-              <input 
-                type="email" disabled value={userEmail} 
-                className="block w-full px-4 py-3 bg-gray-100 dark:bg-[#09090b]/40 border border-gray-200 dark:border-zinc-800/50 text-gray-500 rounded-xl text-sm cursor-not-allowed outline-none" 
-              />
-            </div>
-          </div>
 
-          <div className="pt-4">
-            <button 
-              type="submit" 
-              disabled={isSaving}
-              className="w-full py-3.5 px-4 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-xl font-medium transition-all duration-300 shadow-lg shadow-blue-500/20 disabled:opacity-70 active:scale-[0.98]"
-            >
-              {isSaving ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  กำลังบันทึกข้อมูล...
-                </span>
-              ) : 'ยืนยันและเข้าสู่ระบบ'}
-            </button>
-          </div>
-        </form>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"><Phone className="inline w-4 h-4 mr-1"/> เบอร์โทรศัพท์ *</label>
+                <input 
+                  type="text" required value={formData.phone} 
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="block w-full px-4 py-3 bg-zinc-50 dark:bg-[#09090b] border border-gray-200 dark:border-zinc-800 rounded-xl text-sm focus:ring-2 focus:ring-[#0071e3]/50 focus:border-[#0071e3] outline-none transition-all duration-300 text-zinc-900 dark:text-white" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">อีเมล (ห้ามแก้ไข)</label>
+                <input 
+                  type="email" disabled value={userEmail} 
+                  className="block w-full px-4 py-3 bg-gray-100 dark:bg-[#09090b]/40 border border-gray-200 dark:border-zinc-800/50 text-gray-500 rounded-xl text-sm cursor-not-allowed outline-none" 
+                />
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <button 
+                type="submit" 
+                disabled={isSaving}
+                className="w-full py-3.5 px-4 bg-[#0071e3] hover:bg-[#0077ED] text-white rounded-xl font-medium transition-all duration-300 shadow-lg shadow-blue-500/20 disabled:opacity-70 active:scale-[0.98]"
+              >
+                {isSaving ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    กำลังบันทึกข้อมูล...
+                  </span>
+                ) : 'ยืนยันและเข้าสู่ระบบ'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
