@@ -26,6 +26,12 @@ import CodingRegister from './apps/coding/CodingRegister';
 import CodingWorkspace from './apps/coding/CodingWorkspace';
 
 // ====================================
+// 📁 Cloud File System
+// ====================================
+import CloneFileCenter from './apps/cloud-files/CloneFileCenter'; 
+import CloudLogin from './apps/cloud-files/CloudLogin';
+
+// ====================================
 // 🔐 Auth & SE-Work System
 // ====================================
 import JobHome from './apps/job/views/Home';
@@ -56,7 +62,7 @@ import InternalLink from './apps/job/views/admin/InternalLink';
 import ResourceCenter from './apps/job/views/admin/ResourceCenter';
 import SheetData from './apps/job/views/admin/SheetData';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, redirectPath = "/sework/login" }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
@@ -78,7 +84,7 @@ const ProtectedRoute = ({ children }) => {
       </div>
     );
   }
-  return isAuthenticated ? children : <Navigate to="/sework/login" replace />;
+  return isAuthenticated ? children : <Navigate to={redirectPath} replace />;
 };
 
 export default function App() {
@@ -105,6 +111,23 @@ export default function App() {
           <Route path="workspace" element={<CodingWorkspace />} />
           <Route path="workspace/:snippetId" element={<CodingWorkspace />} />
         </Route>
+
+        {/* Cloud File System Routes */}
+        <Route path="/cloudfiles">
+          <Route path="login" element={<CloudLogin />} />
+          <Route 
+            index 
+            element={
+              <ProtectedRoute redirectPath="/cloudfiles/login">
+                <CloneFileCenter />
+              </ProtectedRoute>
+            } 
+          />
+        </Route>
+        
+        {/* Redirect URLs ที่พิมพ์มาผิดหรือยาวไป */}
+        <Route path="/cloudfiletransfers" element={<Navigate to="/cloudfiles" replace />} />
+        <Route path="/clone-file-center" element={<Navigate to="/cloudfiles" replace />} />
 
         {/* SE-Work Routes */}
         <Route path="/sework">

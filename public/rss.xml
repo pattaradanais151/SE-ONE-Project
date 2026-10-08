@@ -1,19 +1,34 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>SE-ONE.SITE Updates</title>
+    <title>SE-ONE.SITE</title>
     <link>https://seone.site/</link>
-    <description>อัปเดตข่าวสารและประกาศจากสาขาวิศวกรรมซอฟต์แวร์ (Software Engineering) RMUTL</description>
-    <language>th-th</language>
-    <lastBuildDate>Mon, 28 Sep 2026 10:00:00 +0700</lastBuildDate>
+    <description>ข่าวสารและอัปเดตจากระบบ Software Engineering Workspace สำหรับนักศึกษาวิศวกรรมซอฟต์แวร์ RMUTL Generations 4</description>
+    <language>th</language>
+    <copyright>© 2026 Software Engineering RMUTL Generations 4</copyright>
+    <lastBuildDate>Thu, 08 Oct 2026 00:00:00 +0700</lastBuildDate>
+    <ttl>60</ttl>
     <atom:link href="https://seone.site/rss.xml" rel="self" type="application/rss+xml" />
-    
+    <image>
+      <url>https://seone.site/logo.png</url>
+      <title>SE-ONE.SITE</title>
+      <link>https://seone.site/</link>
+    </image>
+
     <item>
-      <title>เปิดใช้งานระบบ SE-Job Workspace อย่างเป็นทางการ</title>
-      <link>https://seone.site/sework</link>
-      <description>ระบบจัดการการเรียน ส่งงาน ติดตามคะแนน แบบครบวงจรและเรียลไทม์ พร้อมให้บริการแล้ว</description>
-      <pubDate>Mon, 28 Sep 2026 09:00:00 +0700</pubDate>
-      <guid>https://seone.site/sework</guid>
+      <title>ยินดีต้อนรับสู่ SE-ONE.SITE</title>
+      <link>https://seone.site/</link>
+      <guid isPermaLink="true">https://seone.site/</guid>
+      <pubDate>Thu, 08 Oct 2026 00:00:00 +0700</pubDate>
+      <description>ศูนย์รวมการเรียน ส่งงาน Cloud IDE และพอร์ตโฟลิโอสำหรับนักศึกษา SE Generations 4</description>
+    </item>
+
+    <item>
+      <title>อัปเกรดระบบ: อัปเดตเวอร์ชันใหม่แบบ Realtime</title>
+      <link>https://seone.site/</link>
+      <guid isPermaLink="false">se-one-pwa-realtime-update-2026-10-08</guid>
+      <pubDate>Thu, 08 Oct 2026 00:00:00 +0700</pubDate>
+      <description>รองรับ PWA เต็มรูปแบบ เมื่อมีเวอร์ชันใหม่ระบบจะอัปเดตให้อัตโนมัติผ่าน Service Worker และ WebSocket</description>
     </item>
   </channel>
 </rss>

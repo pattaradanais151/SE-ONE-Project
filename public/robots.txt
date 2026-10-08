@@ -1,7 +1,12 @@
 User-agent: *
 Allow: /
 Allow: /portfolio
+Allow: /sework
+Allow: /code
+Allow: /cloudfiles
 Disallow: /sework/admin/
 Disallow: /sework/login
 Disallow: /sework/register
+Disallow: /code/login
+Disallow: /code/register
 Sitemap: https://seone.site/sitemap.xml

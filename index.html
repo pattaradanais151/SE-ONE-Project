@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
-    
+
     <!-- 1. Primary Meta Tags (SEO) -->
     <title>SE-ONE.SITE | Software Engineering Workspace</title>
     <meta name="title" content="SE-ONE.SITE | Software Engineering Workspace" />
@@ -15,15 +15,38 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <link rel="canonical" href="https://seone.site/" />
 
-    <!-- 2. Preconnect & DNS Prefetch (Performance) -->
+    <!-- 2. Resource Hints + Priority Hints (Performance) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     <link rel="dns-prefetch" href="https://supabase.co" />
-    
-    <!-- 3. Typography -->
+    <!-- WebSocket: preconnect ใช้ scheme wss:// ไม่ได้ ให้ใช้ https:// ของโฮสต์เดียวกัน (เปลี่ยนให้ตรงกับ WS_URL ด้านล่าง) -->
+    <link rel="dns-prefetch" href="https://ws.seone.site" />
+    <!-- โลโก้บน Preloader คือ LCP candidate ของหน้า → สั่งให้โหลดก่อนเป็นอันดับแรก -->
+    <link rel="preload" as="image" href="/logo.png" type="image/png" fetchpriority="high" />
+
+    <!-- 3. Google Analytics 4 (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1J9TPTV3PG" fetchpriority="low"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1J9TPTV3PG');
+    </script>
+
+    <!-- 4. Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5K5KTFT5');</script>
+    <!-- End Google Tag Manager -->
+
+    <!-- 5. Typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-    <!-- 4. Open Graph / Facebook -->
+    <!-- 6. Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://seone.site/" />
     <meta property="og:title" content="SE-ONE.SITE | Software Engineering Ecosystem" />
@@ -32,32 +55,37 @@
     <meta property="og:site_name" content="SE-ONE.SITE" />
     <meta property="og:locale" content="th_TH" />
 
-    <!-- 5. Twitter Cards -->
+    <!-- 7. Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://seone.site/" />
     <meta name="twitter:title" content="SE-ONE.SITE | Software Engineering Ecosystem" />
     <meta name="twitter:description" content="The official learning ecosystem, Cloud IDE, and portfolio platform for SE Gen 4." />
     <meta name="twitter:image" content="https://seone.site/logo.png" />
 
-    <!-- 6. PWA & Apple iOS Support -->
+    <!-- 8. PWA & Apple iOS Support -->
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="application-name" content="SE Workspace" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SE Workspace" />
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="icon" type="image/png" href="/logo.png" />
 
-    <!-- 7. JSON-LD Structured Data (Advanced SEO for Google) -->
+    <!-- 9. RSS Feed (Auto-discovery) -->
+    <link rel="alternate" type="application/rss+xml" title="SE-ONE.SITE RSS Feed" href="/rss.xml" />
+
+    <!-- 10. JSON-LD Structured Data (Advanced SEO for Google) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "SE-ONE.SITE",
       "url": "https://seone.site/",
-      "description": "Software Engineering Workspace and Portfolio for Gen 4",
+      "description": "Software Engineering Workspace and Portfolio for Generations 4",
       "publisher": {
         "@type": "Organization",
-        "name": "Software Engineering RMUTL Gen 4",
+        "name": "Software Engineering RMUTL Generations 4",
         "logo": {
           "@type": "ImageObject",
           "url": "https://seone.site/logo.png"
@@ -66,7 +94,7 @@
     }
     </script>
 
-    <!-- 8. Critical CSS (Preloader อนิเมชันก่อน React โหลดเสร็จ) -->
+    <!-- 11. Critical CSS (Preloader อนิเมชันก่อน React โหลดเสร็จ + Update Toast) -->
     <style>
       #initial-loader {
         position: fixed;
@@ -124,10 +152,53 @@
         opacity: 0;
         pointer-events: none;
       }
+
+      /* Toast แจ้งเตือนการอัปเดตเวอร์ชันใหม่ (สร้างโดยสคริปต์ PWA ด้านล่าง) */
+      #se-toast {
+        position: fixed;
+        left: 50%;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+        transform: translate(-50%, 20px);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: calc(100vw - 32px);
+        padding: 12px 18px;
+        border-radius: 999px;
+        background: rgba(29, 29, 31, 0.92);
+        color: #f5f5f7;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font: 500 14px/1.4 'Noto Sans Thai', 'Inter', system-ui, sans-serif;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      #se-toast.show { opacity: 1; transform: translate(-50%, 0); }
+      #se-toast .dot {
+        flex: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0071e3;
+        animation: pulseDot 1.2s ease-in-out infinite;
+      }
+      @keyframes pulseDot { 50% { opacity: 0.3; } }
+      @media (prefers-reduced-motion: reduce) {
+        #se-toast, #se-toast .dot, .loader-logo, .loader-spinner { animation: none; transition: none; }
+      }
     </style>
   </head>
 
   <body>
+    <!-- Google Tag Manager (noscript) — ต้องอยู่ต่อจาก <body> ทันที -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5K5KTFT5"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <!-- Fallback สำหรับบราวเซอร์ที่ปิด JavaScript -->
     <noscript>
       <div style="padding: 20px; text-align: center; background: #fff; color: #000;">
@@ -138,7 +209,7 @@
     <!-- Initial Loading Screen -->
     <div id="initial-loader">
       <div class="loader-logo">
-        <img src="/logo.png" alt="SE Logo" />
+        <img src="/logo.png" alt="SE Logo" width="48" height="48" fetchpriority="high" decoding="async" />
       </div>
       <div class="loader-spinner"></div>
       <div class="loader-text">INITIALIZING SYSTEM...</div>
@@ -160,8 +231,296 @@
         }, 100);
       });
     </script>
-    
-    <!-- Instant.page: Preload หน้าล่วงหน้าเมื่อนำเมาส์ไปชี้ลิงก์ -->
-    <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMBh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" crossorigin="anonymous"></script>
+    <script>
+    (() => {
+      'use strict';
+
+      /* ======================= CONFIG ======================= */
+      const CFG = {
+        SW_URL: '/sw.js',
+        WS_URL: 'wss://ws.seone.site',   // TODO: เปลี่ยนเป็น WebSocket endpoint จริง (ใส่ '' เพื่อปิด)
+        POLL_MS_NO_WS: 60 * 1000,        // ไม่มี WS → เช็คทุก 1 นาที
+        POLL_MS_WITH_WS: 5 * 60 * 1000,  // มี WS → เช็คสำรองทุก 5 นาที
+        WS_RETRIES: 6,                   // ถูกสั่งอัปเดตจาก WS → ลองเช็คซ้ำ (รอ CDN กระจายไฟล์ใหม่)
+        WS_RETRY_MS: 5000,
+        WS_PING_MS: 25 * 1000,
+        WS_MAX_BACKOFF_MS: 60 * 1000,
+        WS_MAX_FAILS: 8,                 // ต่อไม่ติดติดต่อกันเกินนี้ → หยุดจนกว่าผู้ใช้กลับมาที่แท็บ/ออนไลน์
+        RELOAD_DELAY_MS: 2000,           // เวลาให้ผู้ใช้เห็น Toast ก่อน reload
+        GUARD_RETRY_MS: 5000,            // ถ้ากำลังมีงานค้าง รอแล้วเช็คใหม่ทุกกี่ ms
+        DEBUG: false
+      };
+
+      const hasSW = 'serviceWorker' in navigator;
+      const isLocal = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+      let reg = null;
+      let updating = false;
+      let hadController = hasSW && !!navigator.serviceWorker.controller;
+
+      const log = (...a) => { if (CFG.DEBUG && window.console) console.log('[SE]', ...a); };
+      const emit = (name, detail) => {
+        try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch (e) {}
+      };
+      const track = (name, params) => {
+        try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); } catch (e) {}
+      };
+
+      /* ======================= TOAST ======================= */
+      function showToast(msg) {
+        let el = document.getElementById('se-toast');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'se-toast';
+          el.setAttribute('role', 'status');
+          el.setAttribute('aria-live', 'polite');
+          el.innerHTML = '<span class="dot"></span><span class="msg"></span>';
+          document.body.appendChild(el);
+        }
+        el.querySelector('.msg').textContent = msg;
+        void el.offsetWidth; // force reflow ให้ transition ทำงาน
+        el.classList.add('show');
+      }
+
+      /* ================= UPDATE (Realtime reload) ================= */
+      // ให้ React ตั้งค่าได้ เช่น window.SE_UPDATE_GUARD = () => hasUnsavedCode;
+      // ถ้า return true จะรอจนกว่างานจะเสร็จก่อนค่อย reload (กันโค้ดใน Web IDE หาย)
+      const isBusy = () => {
+        try { return typeof window.SE_UPDATE_GUARD === 'function' && window.SE_UPDATE_GUARD() === true; }
+        catch (e) { return false; }
+      };
+
+      // กัน reload วนลูป (เช่น CDN ยังส่งไฟล์เก่า)
+      const recentlyReloaded = () => {
+        try { return Date.now() - Number(sessionStorage.getItem('se:reload-ts') || 0) < 30000; }
+        catch (e) { return false; }
+      };
+
+      function applyUpdate(reason) {
+        if (updating) return;
+        if (recentlyReloaded()) { log('skip: reloaded < 30s ago'); return; }
+        updating = true;
+        log('apply update:', reason);
+        track('pwa_update_applied', { reason });
+        showToast('พบเวอร์ชันใหม่ กำลังอัปเดตอัตโนมัติ…');
+
+        const tryReload = () => {
+          if (isBusy()) {
+            showToast('รอบันทึกงานก่อนอัปเดตเวอร์ชันใหม่…');
+            setTimeout(tryReload, CFG.GUARD_RETRY_MS);
+            return;
+          }
+          try { sessionStorage.setItem('se:reload-ts', String(Date.now())); } catch (e) {}
+          location.reload();
+        };
+        setTimeout(tryReload, CFG.RELOAD_DELAY_MS);
+      }
+
+      // ไฟล์ entry ที่หน้าปัจจุบันใช้อยู่ (Vite production: /assets/index-xxxx.js) — dev จะเป็น null
+      function currentEntry() {
+        const s = document.querySelector('script[type="module"][src*="/assets/"]');
+        return s ? new URL(s.getAttribute('src'), location.origin).pathname : null;
+      }
+
+      // ดึง index.html ล่าสุดจากเซิร์ฟเวอร์แล้วอ่านชื่อไฟล์ entry
+      function fetchLatestEntry() {
+        return fetch('/?_se=' + Date.now(), {
+          cache: 'no-store',
+          credentials: 'same-origin',
+          headers: { Accept: 'text/html' }
+        })
+          .then((res) => (res.ok ? res.text() : ''))
+          .then((html) => {
+            const m = html.match(/<script[^>]*type="module"[^>]*src="([^"]*\/assets\/[^"]+)"/i);
+            return m ? new URL(m[1], location.origin).pathname : null;
+          });
+      }
+
+      function checkForUpdate(reason, retries) {
+        if (updating) return;
+        if (reg) reg.update().catch(() => {});       // sw.js เปลี่ยน → ติดตั้ง → controllerchange
+        const cur = currentEntry();
+        if (!cur || !navigator.onLine) return;
+        fetchLatestEntry()
+          .then((latest) => {
+            if (latest && latest !== cur) return applyUpdate(reason);
+            if (retries > 0) setTimeout(() => checkForUpdate(reason, retries - 1), CFG.WS_RETRY_MS);
+          })
+          .catch(() => {});
+      }
+
+      /* ================= SERVICE WORKER ================= */
+      function registerSW() {
+        if (!hasSW || isLocal) return;
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!hadController) { hadController = true; return; } // ติดตั้งครั้งแรก ไม่ต้อง reload
+          applyUpdate('sw-controller-change');
+        });
+
+        navigator.serviceWorker
+          .register(CFG.SW_URL, { scope: '/', updateViaCache: 'none' })
+          .then((r) => {
+            reg = r;
+            if (r.waiting) r.waiting.postMessage({ type: 'SKIP_WAITING' });
+            r.addEventListener('updatefound', () => {
+              const nw = r.installing;
+              if (!nw) return;
+              nw.addEventListener('statechange', () => {
+                if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                  nw.postMessage({ type: 'SKIP_WAITING' }); // กันเหนียว (sw.js ก็ skipWaiting เองอยู่แล้ว)
+                }
+              });
+            });
+          })
+          .catch((err) => log('SW register failed', err));
+      }
+
+      /* ================= PWA INSTALL PROMPT ================= */
+      let deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();               // เก็บไว้ให้ปุ่ม "ติดตั้งแอป" ของเราเรียกเอง
+        deferredPrompt = e;
+        emit('se:pwa:installable', {});
+      });
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        track('pwa_installed');
+        emit('se:pwa:installed', {});
+      });
+      const promptInstall = () => {
+        if (!deferredPrompt) return Promise.resolve(null);
+        const p = deferredPrompt;
+        deferredPrompt = null;
+        p.prompt();
+        return p.userChoice;
+      };
+
+      /* ================= WEBSOCKET CLIENT ================= */
+      let ws = null;
+      let wsOpen = false;
+      let wsFails = 0;
+      let wsOpenedAt = 0;
+      let wsManualClose = false;
+      let wsReconnectTimer = null;
+      let wsPingTimer = null;
+      const wsHandlers = {};
+
+      const wsStatus = (status) => emit('se:ws:status', { status });
+
+      function wsSend(data) {
+        if (!ws || ws.readyState !== WebSocket.OPEN) return false;
+        try { ws.send(typeof data === 'string' ? data : JSON.stringify(data)); return true; }
+        catch (e) { return false; }
+      }
+
+      function wsRetryLater() {
+        if (wsFails >= CFG.WS_MAX_FAILS) { log('ws: give up until user returns'); return; }
+        const delay = Math.min(CFG.WS_MAX_BACKOFF_MS, 1000 * Math.pow(2, wsFails)) + Math.random() * 1000;
+        clearTimeout(wsReconnectTimer);
+        wsReconnectTimer = setTimeout(wsConnect, delay);
+      }
+
+      function wsConnect() {
+        if (!CFG.WS_URL || !('WebSocket' in window)) return;
+        if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
+        if (wsFails >= CFG.WS_MAX_FAILS) return;
+
+        clearTimeout(wsReconnectTimer);
+        wsManualClose = false;
+        wsOpenedAt = 0;
+
+        try { ws = new WebSocket(CFG.WS_URL); }
+        catch (e) { wsFails++; wsRetryLater(); return; }
+        wsStatus('connecting');
+
+        ws.onopen = () => {
+          wsOpen = true;
+          wsOpenedAt = Date.now();
+          wsStatus('open');
+          log('ws open');
+          wsSend({ type: 'hello', app: 'se-one', build: currentEntry(), path: location.pathname });
+          clearInterval(wsPingTimer);
+          wsPingTimer = setInterval(() => wsSend({ type: 'ping', t: Date.now() }), CFG.WS_PING_MS);
+        };
+
+        ws.onmessage = (ev) => {
+          let msg;
+          try { msg = JSON.parse(ev.data); } catch (e) { msg = { type: 'raw', data: ev.data }; }
+          if (!msg || msg.type === 'pong') return;
+
+          // เซิร์ฟเวอร์ประกาศ deploy ใหม่ → เช็คแล้วอัปเดตทันที
+          if (msg.type === 'app-update' || msg.type === 'deploy') {
+            checkForUpdate('ws', CFG.WS_RETRIES);
+          }
+          emit('se:ws:message', msg); // ให้ React ฟังผ่าน window.addEventListener('se:ws:message', ...)
+          (wsHandlers[msg.type] || []).forEach((fn) => { try { fn(msg); } catch (e) {} });
+        };
+
+        ws.onerror = () => { /* onclose จะตามมาเอง */ };
+
+        ws.onclose = () => {
+          wsOpen = false;
+          clearInterval(wsPingTimer);
+          wsStatus('closed');
+          // เชื่อมต่ออยู่นานพอ (>10s) ถือว่าเสถียร รีเซ็ตตัวนับ ไม่งั้นนับเป็นความล้มเหลว
+          if (wsOpenedAt && Date.now() - wsOpenedAt > 10000) wsFails = 0; else wsFails++;
+          if (!wsManualClose) wsRetryLater();
+        };
+      }
+
+      // ผู้ใช้กลับมา/ออนไลน์ → ปลุกการเชื่อมต่อ
+      const wsWake = () => {
+        if (wsOpen) return;
+        wsFails = 0;
+        wsConnect();
+      };
+
+      /* ================= PUBLIC API (ใช้จาก React ได้) ================= */
+      window.SE_WS = {
+        send: wsSend,
+        on(type, fn) { (wsHandlers[type] = wsHandlers[type] || []).push(fn); },
+        off(type, fn) { wsHandlers[type] = (wsHandlers[type] || []).filter((f) => f !== fn); },
+        connect: wsWake,
+        close() {
+          wsManualClose = true;
+          clearTimeout(wsReconnectTimer);
+          if (ws) ws.close(1000);
+        },
+        get connected() { return wsOpen; }
+      };
+      window.SE_PWA = {
+        checkForUpdate: () => checkForUpdate('manual', 0),
+        install: promptInstall,
+        get installable() { return !!deferredPrompt; }
+      };
+
+      /* ================= TRIGGERS ================= */
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) { checkForUpdate('visible', 0); wsWake(); }
+      });
+      window.addEventListener('online', () => { checkForUpdate('online', 0); wsWake(); });
+      window.addEventListener('pageshow', (e) => { if (e.persisted) checkForUpdate('bfcache', 0); });
+
+      const schedulePoll = () => {
+        setTimeout(() => {
+          if (!document.hidden) checkForUpdate('poll', 0);
+          schedulePoll();
+        }, wsOpen ? CFG.POLL_MS_WITH_WS : CFG.POLL_MS_NO_WS);
+      };
+
+      // เริ่มทำงานหลังหน้าโหลดเสร็จและเบราว์เซอร์ว่าง เพื่อไม่กระทบ LCP
+      window.addEventListener('load', () => {
+        const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1500));
+        idle(() => {
+          registerSW();
+          wsConnect();
+          schedulePoll();
+        }, { timeout: 4000 });
+      });
+    })();
+    </script>
+
+    <!-- Instant.page: Preload หน้าล่วงหน้าเมื่อนำเมาส์ไปชี้ลิงก์ (priority ต่ำ ไม่แย่งทรัพยากรหน้าหลัก) -->
+    <script src="https://instant.page/5.2.0" type="module" fetchpriority="low" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMBh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" crossorigin="anonymous"></script>
   </body>
 </html>

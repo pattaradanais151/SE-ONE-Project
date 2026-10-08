@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { css, keyframes } from '@emotion/css';
 import { 
   Sun, Moon, ChevronRight, Briefcase, Code, Terminal, 
-  ArrowUpRight, Globe, ShieldCheck, ArrowRight, Cpu, Network
+  ArrowUpRight, Globe, ShieldCheck, ArrowRight, Cpu, Network,
+  Cloud
 } from 'lucide-react';
 import SEO from '../../components/seo/SEO';
 import 'animate.css';
@@ -88,12 +89,19 @@ export default function LandingApp() {
         onDragStart={preventAll}
         className="min-h-screen bg-[#fbfbfd] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] font-sans selection:bg-[#0071e3] selection:text-white transition-colors duration-500 overflow-x-hidden select-none"
       >
+        {/* Dynamic Scrollbar Styling based on Theme */}
         <style>{`
           ::-webkit-scrollbar { width: 8px; }
           ::-webkit-scrollbar-track { background: transparent; }
-          ::-webkit-scrollbar-thumb { background: rgba(134, 134, 139, 0.4); border-radius: 10px; }
-          ::-webkit-scrollbar-thumb:hover { background: rgba(134, 134, 139, 0.8); }
+          ::-webkit-scrollbar-thumb { 
+            background: ${isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}; 
+            border-radius: 10px; 
+          }
+          ::-webkit-scrollbar-thumb:hover { 
+            background: ${isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'}; 
+          }
           .tech-grid { background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 24px 24px; }
+          .light .tech-grid { background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px); }
         `}</style>
         
         {/* ------------------------------------------
@@ -144,7 +152,7 @@ export default function LandingApp() {
                 onClick={() => navigate('/sework/login')}
                 className="bg-[#1d1d1f] dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full hover:scale-95 transition-transform shadow-md font-bold"
               >
-                Job System
+                Login SE-Work
               </button>
             </div>
           </div>
@@ -156,7 +164,7 @@ export default function LandingApp() {
         <section className="relative w-full min-h-screen flex flex-col items-center justify-center pt-28 pb-10 text-center overflow-hidden">
           <div className={`z-10 px-4 ${css`animation: ${fadeInUp} 1.2s cubic-bezier(0.16, 1, 0.3, 1);`}`}>
             <h2 className="text-[#86868b] dark:text-[#a1a1a6] text-lg sm:text-2xl font-semibold tracking-tight mb-2">
-              Software Engineering Gen 4
+              Software Engineering Generations 4
             </h2>
             <h1 className="text-6xl sm:text-8xl md:text-[10rem] font-black tracking-tighter leading-none mb-6">
               Pro.<br/>
@@ -165,8 +173,8 @@ export default function LandingApp() {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-[#1d1d1f] dark:text-[#f5f5f7] font-medium tracking-tight max-w-2xl mx-auto mb-10 opacity-90">
-              ระบบจัดการการเรียน และ พอร์ตโฟลิโอส่วนตัว<br className="hidden sm:block"/> 
-              ออกแบบใหม่หมดจด ทรงพลังกว่าที่เคย
+              ระบบจัดการการเรียน และ อื่นๆอีกมากมายที่จะตามมาอีกเพียบ<br className="hidden sm:block"/> 
+              ออกแบบใหม่หมดจด และจะทรงพลังกว่าที่เคยเป็นมา
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-lg font-medium">
@@ -189,7 +197,7 @@ export default function LandingApp() {
         </section>
 
         {/* ------------------------------------------
-            🍎 Features & Ecosystem (Added SE-ONE IDE)
+            🍎 Features & Ecosystem (Added SE-ONE IDE & Cloud Files)
             ------------------------------------------ */}
         <section className="max-w-[1200px] mx-auto px-6 py-24 relative z-10">
           <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -200,44 +208,57 @@ export default function LandingApp() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: SE Job System */}
-            <div onClick={() => navigate('/sework')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-10 h-[450px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+            <div onClick={() => navigate('/sework')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-8 h-[400px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
               <div className="relative z-10">
                 <Briefcase className="w-10 h-10 mb-6 text-[#1d1d1f] dark:text-white" />
-                <h3 className="text-3xl font-bold tracking-tight mb-3">SE Job System.</h3>
-                <p className="text-[#86868b] dark:text-[#a1a1a6] text-lg font-medium leading-relaxed">จัดการตารางเรียน ส่งงาน เช็คชื่อ<br/> และประกาศ จบครบในที่เดียว</p>
+                <h3 className="text-2xl font-bold tracking-tight mb-3">SE Job System.</h3>
+                <p className="text-[#86868b] dark:text-[#a1a1a6] text-base font-medium leading-relaxed">จัดการตารางเรียน ส่งงาน เช็คชื่อ และประกาศ จบครบในที่เดียว</p>
               </div>
-              <div className="relative z-10 flex items-center gap-2 text-[#0071e3] font-medium text-lg mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+              <div className="relative z-10 flex items-center gap-2 text-[#0071e3] font-medium text-base mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                 เข้าสู่ระบบ <ChevronRight className="w-5 h-5" />
               </div>
-              <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-gradient-to-br from-[#0071e3]/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-gradient-to-br from-[#0071e3]/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             </div>
 
             {/* Card 2: Dev Portfolio */}
-            <div onClick={() => navigate('/portfolio')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-10 h-[450px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+            <div onClick={() => navigate('/portfolio')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-8 h-[400px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
               <div className="relative z-10">
                 <Code className="w-10 h-10 mb-6 text-[#1d1d1f] dark:text-white" />
-                <h3 className="text-3xl font-bold tracking-tight mb-3">Dev Portfolio.</h3>
-                <p className="text-[#86868b] dark:text-[#a1a1a6] text-lg font-medium leading-relaxed">พื้นที่จัดแสดงผลงาน ทักษะ และ<br/>เทคโนโลยีที่เชี่ยวชาญตลอด 4 ปี</p>
+                <h3 className="text-2xl font-bold tracking-tight mb-3">Dev Portfolio.</h3>
+                <p className="text-[#86868b] dark:text-[#a1a1a6] text-base font-medium leading-relaxed">พื้นที่จัดแสดงผลงาน ทักษะ และเทคโนโลยีที่เชี่ยวชาญตลอด 4 ปี</p>
               </div>
-              <div className="relative z-10 flex items-center gap-2 text-fuchsia-500 font-medium text-lg mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+              <div className="relative z-10 flex items-center gap-2 text-fuchsia-500 font-medium text-base mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                 สำรวจผลงาน <ChevronRight className="w-5 h-5" />
               </div>
-              <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-gradient-to-br from-fuchsia-500/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-gradient-to-br from-fuchsia-500/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             </div>
 
             {/* Card 3: Coding Playground */}
-            <div onClick={() => navigate('/code')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-10 h-[450px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+            <div onClick={() => navigate('/code')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-8 h-[400px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
               <div className="relative z-10">
                 <Terminal className="w-10 h-10 mb-6 text-[#1d1d1f] dark:text-white" />
-                <h3 className="text-3xl font-bold tracking-tight mb-3">SE-ONE IDE.</h3>
-                <p className="text-[#86868b] dark:text-[#a1a1a6] text-lg font-medium leading-relaxed">พื้นที่ฝึกเขียนโค้ดและรันโปรแกรม<br/>บนเบราว์เซอร์ได้ทันที ไม่ต้องติดตั้ง</p>
+                <h3 className="text-2xl font-bold tracking-tight mb-3">SE-ONE IDE.</h3>
+                <p className="text-[#86868b] dark:text-[#a1a1a6] text-base font-medium leading-relaxed">พื้นที่ฝึกเขียนโค้ดและรันโปรแกรมบนเบราว์เซอร์ได้ทันที ไม่ต้องติดตั้ง</p>
               </div>
-              <div className="relative z-10 flex items-center gap-2 text-emerald-500 font-medium text-lg mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+              <div className="relative z-10 flex items-center gap-2 text-emerald-500 font-medium text-base mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                 เริ่มเขียนโค้ด <ChevronRight className="w-5 h-5" />
               </div>
-              <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+            </div>
+
+            {/* Card 4: Cloud File Center */}
+            <div onClick={() => navigate('/cloudfiles')} className="group cursor-pointer bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border border-white dark:border-zinc-800/80 rounded-[2rem] p-8 h-[400px] flex flex-col justify-between overflow-hidden relative shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              <div className="relative z-10">
+                <Cloud className="w-10 h-10 mb-6 text-[#1d1d1f] dark:text-white" />
+                <h3 className="text-2xl font-bold tracking-tight mb-3">Cloud Files.</h3>
+                <p className="text-[#86868b] dark:text-[#a1a1a6] text-base font-medium leading-relaxed">ศูนย์รวมไฟล์ส่วนตัวและที่ทำงาน จัดเก็บข้อมูลอย่างปลอดภัยบนคลาวด์</p>
+              </div>
+              <div className="relative z-10 flex items-center gap-2 text-cyan-500 font-medium text-base mt-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                จัดการไฟล์ <ChevronRight className="w-5 h-5" />
+              </div>
+              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-gradient-to-br from-cyan-500/20 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
             </div>
           </div>
         </section>

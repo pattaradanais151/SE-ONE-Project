@@ -1,9 +1,9 @@
 # SE-ONE.SITE
 
-> A centralized workspace, learning ecosystem, and talent portfolio for Software Engineering Gen 4 at RMUTL (Chiang Mai).
+> A centralized workspace, learning ecosystem, cloud storage, and talent portfolio for Software Engineering Gen 4 at RMUTL (Chiang Mai).
 
 ## 1. Overview
-SE-ONE.SITE is a comprehensive platform designed specifically for software engineering students. It serves as an educational hub, an administrative tool for classes, a showcase for student projects, and a fully functional in-browser coding environment.
+SE-ONE.SITE is a comprehensive platform designed specifically for software engineering students. It serves as an educational hub, an administrative tool for classes, a showcase for student projects, a fully functional in-browser coding environment, and a secure cloud file management system.
 
 ## 2. Core Subsystems
 
@@ -23,16 +23,20 @@ A professional-grade, in-browser coding playground.
   - Mock environments for C and Java
 - Features: Real-time console interception, save/share snippet links, coding challenges, resizable UI, and theme switching.
 
-### 2.3 Talent & Showcase Portfolio (/portfolio, /showcase)
+### 2.3 Cloud File Center (/cloudfiles)
+A private cloud storage solution for students.
+- Features: Upload/download files, create folders, password-protect folders (2FA-style), and share resources.
+- Access: Requires authentication (SE-Work account).
+
+### 2.4 Talent & Showcase Portfolio (/portfolio, /showcase)
 Publicly accessible directories displaying the capabilities of SE Gen 4 students.
 - Integrates with GitHub API to fetch real-time repository and follower stats.
 
 ## 3. Technology Stack
 - Frontend: React 18, Vite
 - Styling: Tailwind CSS v4, Emotion (CSS-in-JS), Lucide Icons
-- Backend/BaaS: Supabase (PostgreSQL, Auth, Realtime WebSockets)
+- Backend/BaaS: Supabase (PostgreSQL, Auth, Storage, Realtime WebSockets)
 - Deployment: Cloudflare Pages
 
 ## 4. Contact & Support
 - Digital Guestbook: /guestbook
-- Support & Ticketing: /support (Integrates with Discord Webhooks for real-time admin alerts)

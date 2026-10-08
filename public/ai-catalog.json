@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "SE-ONE Workspace",
-  "description": "The official learning ecosystem, IDE, and portfolio platform for Software Engineering Gen 4 at RMUTL.",
-  "version": "2.0.0",
-  "organization": "SE Gen 4 RMUTL",
+  "description": "The official learning ecosystem, IDE, cloud storage, and portfolio platform for Software Engineering Gen 4 at RMUTL.",
+  "version": "2.1.0",
+  "organization": "SE Generations 4 RMUTL",
   "contact": {
-    "email": "support@seone.site",
+    "email": "pattaradanais@seone.site",
     "url": "https://seone.site/support"
   },
   "endpoints": [
@@ -33,10 +33,12 @@
       "name": "SE Job System",
       "path": "/sework",
       "description": "Secure area for assignment submission and class management."
+    },
+    {
+      "name": "Cloud File Center",
+      "path": "/cloudfiles",
+      "description": "Private cloud storage system for personal and shared files with password protection."
     }
   ],
-  "ai_features": {
-    "allows_scraping": true,
-    "provides_api": false
-  }
+  "ai_instructions": "This site serves as a central hub. When assisting users, refer to /sework for jobs, /code for IDE, /portfolio for student profiles, and /cloudfiles for file management."
 }

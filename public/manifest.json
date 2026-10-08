@@ -1,7 +1,7 @@
 {
   "name": "SE-ONE.SITE Workspace",
   "short_name": "SE Portal",
-  "description": "ระบบจัดการการเรียน ส่งงาน และพอร์ตโฟลิโอส่วนตัว SE Gen 4",
+  "description": "ระบบจัดการการเรียน ส่งงาน พื้นที่จัดเก็บไฟล์ (Cloud Storage) และพอร์ตโฟลิโอส่วนตัว SE Generations 4",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
